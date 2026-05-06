@@ -1,0 +1,21 @@
+medicao,timestamp,so,ram_total_gb,ram_disponivel_gb,ram_usada_gb,uso_percent,num_processos,top1_nome,top1_pid,top1_ram_mb,top2_nome,top2_pid,top2_ram_mb,top3_nome,top3_pid,top3_ram_mb
+1,2026-04-13 15:04:46,Ubuntu 24.04,15.35,12.77,2.0,16.8,343,mysqld,1565,389.3,gnome-shell,20596,360.1,gnome-software,20831,276.6
+2,2026-04-13 15:04:51,Ubuntu 24.04,15.35,12.76,2.01,16.9,343,mysqld,1565,389.3,gnome-shell,20596,360.1,gnome-software,20831,276.6
+3,2026-04-13 15:04:56,Ubuntu 24.04,15.35,12.77,2.0,16.8,343,mysqld,1565,389.3,gnome-shell,20596,360.1,gnome-software,20831,276.6
+4,2026-04-13 15:05:01,Ubuntu 24.04,15.35,12.76,2.0,16.8,343,mysqld,1565,389.3,gnome-shell,20596,360.1,gnome-software,20831,276.6
+5,2026-04-13 15:05:06,Ubuntu 24.04,15.35,12.76,2.01,16.8,341,mysqld,1565,389.3,gnome-shell,20596,360.1,gnome-software,20831,276.6
+6,2026-04-13 15:05:11,Ubuntu 24.04,15.35,12.76,2.01,16.9,341,mysqld,1565,389.3,gnome-shell,20596,360.2,gnome-software,20831,276.6
+7,2026-04-13 15:05:16,Ubuntu 24.04,15.35,12.75,2.01,16.9,341,mysqld,1565,389.3,gnome-shell,20596,360.1,gnome-software,20831,276.6
+8,2026-04-13 15:05:21,Ubuntu 24.04,15.35,12.76,2.01,16.9,341,mysqld,1565,389.3,gnome-shell,20596,360.1,gnome-software,20831,276.6
+9,2026-04-13 15:05:26,Ubuntu 24.04,15.35,12.76,2.01,16.9,342,mysqld,1565,389.3,gnome-shell,20596,360.1,gnome-software,20831,276.6
+10,2026-04-13 15:05:31,Ubuntu 24.04,15.35,12.75,2.01,16.9,342,mysqld,1565,389.3,gnome-shell,20596,360.1,gnome-software,20831,276.6
+11,2026-04-13 15:05:36,Ubuntu 24.04,15.35,12.75,2.01,16.9,343,mysqld,1565,389.3,gnome-shell,20596,360.1,gnome-software,20831,276.6
+12,2026-04-13 15:05:41,Ubuntu 24.04,15.35,12.75,2.01,16.9,341,mysqld,1565,389.3,gnome-shell,20596,360.1,gnome-software,20831,276.6
+13,2026-04-13 15:05:46,Ubuntu 24.04,15.35,12.75,2.01,16.9,341,mysqld,1565,389.3,gnome-shell,20596,360.0,gnome-software,20831,276.6
+14,2026-04-13 15:05:51,Ubuntu 24.04,15.35,12.75,2.02,16.9,341,mysqld,1565,389.3,gnome-shell,20596,360.0,gnome-software,20831,276.6
+15,2026-04-13 15:05:56,Ubuntu 24.04,15.35,12.75,2.02,16.9,341,mysqld,1565,389.3,gnome-shell,20596,360.1,gnome-software,20831,276.6
+16,2026-04-13 15:06:01,Ubuntu 24.04,15.35,12.75,2.02,16.9,341,mysqld,1565,389.3,gnome-shell,20596,360.1,gnome-software,20831,276.6
+17,2026-04-13 15:06:06,Ubuntu 24.04,15.35,12.75,2.02,16.9,341,mysqld,1565,389.3,gnome-shell,20596,360.0,gnome-software,20831,276.6
+18,2026-04-13 15:06:11,Ubuntu 24.04,15.35,12.75,2.02,16.9,340,mysqld,1565,389.3,gnome-shell,20596,360.1,gnome-software,20831,276.6
+19,2026-04-13 15:06:16,Ubuntu 24.04,15.35,12.75,2.01,16.9,341,mysqld,1565,389.3,gnome-shell,20596,360.1,gnome-software,20831,276.6
+20,2026-04-13 15:06:21,Ubuntu 24.04,15.35,12.75,2.02,16.9,341,mysqld,1565,389.3,gnome-shell,20596,360.1,gnome-software,20831,276.6

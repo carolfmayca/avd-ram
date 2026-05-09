@@ -1,0 +1,11 @@
+medicao,timestamp,so,ram_total_gb,ram_disponivel_gb,ram_usada_gb,uso_percent,num_processos,top1_nome,top1_pid,top1_ram_mb,top2_nome,top2_pid,top2_ram_mb,top3_nome,top3_pid,top3_ram_mb
+1,2026-05-09 10:48:58,Ubuntu 24.04,15.35,13.11,1.68,14.6,325,mysqld,1667,387.1,gnome-shell,3150,341.2,snap-store,3555,152.0
+2,2026-05-09 10:49:18,Ubuntu 24.04,15.35,13.1,1.67,14.7,325,mysqld,1667,387.1,gnome-shell,3150,341.0,snap-store,3555,152.0
+3,2026-05-09 10:49:38,Ubuntu 24.04,15.35,13.13,1.67,14.5,325,mysqld,1667,387.1,gnome-shell,3150,341.0,snap-store,3555,152.0
+4,2026-05-09 10:49:58,Ubuntu 24.04,15.35,13.13,1.67,14.5,325,mysqld,1667,387.1,gnome-shell,3150,341.0,snap-store,3555,152.0
+5,2026-05-09 10:50:18,Ubuntu 24.04,15.35,13.13,1.67,14.5,325,mysqld,1667,387.1,gnome-shell,3150,340.9,snap-store,3555,152.0
+6,2026-05-09 10:50:38,Ubuntu 24.04,15.35,13.13,1.67,14.5,325,mysqld,1667,387.1,gnome-shell,3150,341.0,snap-store,3555,152.0
+7,2026-05-09 10:50:58,Ubuntu 24.04,15.35,13.13,1.67,14.5,325,mysqld,1667,387.1,gnome-shell,3150,340.9,snap-store,3555,152.0
+8,2026-05-09 10:51:18,Ubuntu 24.04,15.35,13.13,1.67,14.5,324,mysqld,1667,387.1,gnome-shell,3150,340.8,snap-store,3555,152.0
+9,2026-05-09 10:51:38,Ubuntu 24.04,15.35,13.13,1.67,14.5,322,mysqld,1667,387.1,gnome-shell,3150,340.9,snap-store,3555,152.0
+10,2026-05-09 10:51:58,Ubuntu 24.04,15.35,13.16,1.64,14.3,323,mysqld,1667,387.1,gnome-shell,3150,341.0,snap-store,3555,152.0

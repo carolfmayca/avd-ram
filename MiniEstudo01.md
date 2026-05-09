@@ -2,16 +2,26 @@
 marp: false
 ---
 
+
 # Mini Estudo 1: Baseline do Uso de RAM em Sistemas Operacionais de Dispositivos Pessoais
 
-**Carolina Falabelo Maycá, Luiza da Costa Caxeixa, Nicolas Mady Corrêa Gomes**
+<div align="center", style="display: flex; align-items: center; justify-content: center; gap: 20px;">
+    <img src="https://www.ripsa.org.br/wp-content/uploads/2025/08/32-UFAM-Logo.png" alt="UFAM" width="150"/>
+    <img src="https://icomp.ufam.edu.br/images/icomp.png" alt="IComp" width="150"/>
+</div>
 
-<!-- justified -->
-
-Instituto de Computação (IComp) – Universidade Federal do Amazonas (UFAM)
+<div align="center">
+Instituto de Computação (IComp) – Universidade Federal do Amazonas (UFAM)<br>
 Av. Rodrigo Otávio, nº 6200, Coroado I, Manaus – AM, 69080-900
+</div>
 
----
+<br>
+
+**Grupo:** Carolina Falabelo Maycá, Luiza da Costa Caxeixa, Nicolas Mady Corrêa Gomes<br>
+**Trilha:** Dispositivos Pessoais<br>
+**Sistema analisado:** Sistemas Operacionais (Windows, Ubuntu, Fedora)<br>
+**Repositório:** <https://github.com/carolfmayca/avd-ram><br>
+<br>
 
 ## Introdução
 
@@ -19,59 +29,52 @@ Esse trabalho foi desenvolvido pelo grupo composto pelos membros citados acima e
 
 A proposta do Mini Estudo é estabelecer um baseline experimental que permita observar como esses sistemas operacionais gerenciam a memória RAM quando submetidos a uma carga de trabalho padronizada, composta por um conjunto fixo de aplicações executadas simultaneamente. A partir desse procedimento controlado, busca-se analisar o comportamento da memória disponível após a estabilização do sistema, possibilitando uma comparação inicial entre os ambientes avaliados.
 
----
+<br>
 
 ## Ficha de Planejamento
-
-**Grupo:** Carolina Falabelo Maycá, Luiza da Costa Caxeixa, Nicolas Mady Corrêa Gomes
-**Trilha:** Dispositivos Pessoais
-**Sistema analisado:** Sistemas Operacionais (Windows, Ubuntu, Fedora)
-**Repositório:** <https://github.com/carolfmayca/avd-ram>
-
----
 
 ### 1. Qual é a pergunta operacional do Mini Estudo 1?
 
 Qual é o percentual de uso de RAM em estado estável após a abertura de um conjunto padronizado de aplicações, em máquinas com diferentes sistemas operacionais (Windows, Ubuntu e Fedora)?
 
----
+<br>
 
 ### 2. Qual é o sistema ou cenário-base?
 
 O cenário-base consiste em dispositivos pessoais (notebooks) com configurações de 8 GB e 16 GB de RAM, executando os sistemas operacionais:
 
-- **Windows 11** (versão 10.0.26200)
+- **Windows 11**
 - **Ubuntu 24.04**
 - **Fedora Linux 44**
 
 Cada operador executa o experimento na sua própria máquina, com reinicialização controlada antes de cada coleta.
 
----
+<br>
 
 ### 3. Qual é a métrica principal e qual é a sua unidade?
 
-**Métrica principal:** Percentual de uso da RAM (`uso_percent`)
-**Unidade:** % (porcentagem da memória total)
+**Métrica principal:** Percentual de uso da RAM (`uso_percent`)<br>
+**Unidade:** % (porcentagem da memória total)<br>
 
----
+<br>
 
 ### 4. Qual instrumento será usado para medir?
 
 Script Python (`src/ram_monitor.py`) utilizando a biblioteca `psutil` para acessar `psutil.virtual_memory()`. O instrumento coleta automaticamente os dados em intervalos regulares e os registra em arquivo CSV.
 
----
+<br>
 
 ### 5. O instrumento mede diretamente a métrica ou apenas algo relacionado?
 
 Mede **diretamente**. A função `psutil.virtual_memory().percent` retorna o percentual de memória RAM utilizada conforme reportado pelo kernel do sistema operacional, o que corresponde exatamente à métrica desejada.
 
----
+<br>
 
 ### 6. Qual benchmark ou microbenchmark será executado?
 
 O experimento consiste em um **microbenchmark de estado estável**: após reinicialização do sistema, abre-se um conjunto fixo de aplicações (processos do SO + aplicações do usuário como navegador, VS Code), aguarda-se a estabilização, e coleta-se 30 medições com intervalo de 20 segundos entre cada uma.
 
----
+<br>
 
 ### 7. Qual carga de trabalho será aplicada?
 
@@ -82,7 +85,7 @@ A carga é composta por:
 
 Cada operador manteve as mesmas aplicações abertas ao longo de todas as medições.
 
----
+<br>
 
 ### 8. Como a carga será caracterizada?
 
@@ -98,13 +101,13 @@ A carga é uma **combinação entre realista e sintética**:
 - **Concorrência:** todos os processos executando simultaneamente
 - **Mistura:** diferentes tipos de aplicações com perfis distintos de consumo
 
----
+<br>
 
 ### 9. Quantas repetições serão realizadas?
 
 **30 medições por coleta**, com intervalo de 20 segundos entre cada uma. Cada cenário (SO × máquina) possui pelo menos uma coleta de 30 repetições, totalizando dados suficientes para análise estatística com nível de confiança de 95%.
 
----
+<br>
 
 ### 10. O que será mantido constante?
 
@@ -114,7 +117,7 @@ A carga é uma **combinação entre realista e sintética**:
 - Script de coleta (mesmo `ram_monitor.py` em todos os ambientes)
 - Condição de início: reinicialização controlada + estabilização antes da coleta
 
----
+<br>
 
 ### 11. O que será registrado como dado bruto?
 
@@ -132,7 +135,7 @@ Cada medição registra em CSV:
 | `num_processos` | Número de processos ativos |
 | `top1..3_nome/pid/ram_mb` | Top 3 processos por consumo de RAM |
 
----
+<br>
 
 ### 12. Que metadados serão registrados?
 
@@ -150,7 +153,7 @@ Arquivo JSON (`medicoes_ram_metadados.json`) com:
 - Status da bateria (%, conectada, tempo restante)
 - Observações livres
 
----
+<br>
 
 ### 13. Qual análise mínima será feita?
 
@@ -160,7 +163,7 @@ Arquivo JSON (`medicoes_ram_metadados.json`) com:
 - **Comparação:** diferença percentual entre SOs para mesma máquina/operador
 - **Suficiência amostral:** cálculo do n necessário para precisão relativa de 5%
 
----
+<br>
 
 ### 14. O que o baseline permitirá concluir?
 
@@ -169,7 +172,7 @@ Arquivo JSON (`medicoes_ram_metadados.json`) com:
 - Que o sistema de medição funciona e produz resultados estáveis e reprodutíveis
 - Qual SO apresenta maior pressão sobre a memória nas condições experimentadas
 
----
+<br>
 
 ### 15. O que o baseline não permitirá concluir?
 
@@ -179,13 +182,13 @@ Arquivo JSON (`medicoes_ram_metadados.json`) com:
 - Relações causais definitivas entre SO e eficiência de gerenciamento de memória
 - Comportamento em cenários de ociosidade total ou saturação de RAM
 
----
+<br>
 
 ### 16. Qual é a principal ameaça à validade do estudo?
 
 **Diferenças na inicialização automática de processos entre SOs.** Cada sistema operacional inicia um conjunto próprio de serviços e processos de fundo que não podem ser completamente padronizados entre Windows, Ubuntu e Fedora. Além disso, as máquinas dos integrantes possuem configurações de hardware distintas (8 GB vs 16 GB, diferentes CPUs), o que impede uma comparação direta perfeitamente controlada.
 
----
+<br>
 
 ### 17. Qual cuidado metodológico principal será adotado?
 
@@ -196,20 +199,20 @@ Arquivo JSON (`medicoes_ram_metadados.json`) com:
 - Utilizar o mesmo script de coleta em todos os ambientes
 - Manter o modo de desempenho/energia consistente
 
----
+<br>
 
 ## Ambientes de Coleta
 
 | Operador | SO | RAM Total | Máquina | CPU Cores (fís/lóg) |
-|----------|----|-----------|---------|--------------------|
+|----------|:----:|:-----------:|:---------:|:--------------------:|
 | Carolina | Ubuntu 24.04 | 15,35 GB | carole | 10/12 |
-| Carolina | Windows 11 (10.0.26200) | 15,73 GB | CaroleIII | 10/12 |
+| Carolina | Windows 11 | 15,73 GB | CaroleIII | 10/12 |
 | Luiza | Ubuntu 24.04 | 7,50 GB | caxeixas | 4/8 |
-| Luiza | Windows 11 (10.0.26200) | 7,84 GB | swift | 4/8 |
+| Luiza | Windows 11 | 7,84 GB | swift | 4/8 |
 | Nicolas | Fedora Linux 44 | 15,13 GB | fedora | 14/18 |
-| Nicolas | Windows 11 (10.0.26200) | 15,53 GB | DESKTOP-25F8DM4 | 14/18 |
+| Nicolas | Windows 11 | 15,53 GB | DESKTOP-25F8DM4 | 14/18 |
 
----
+<br>
 
 ## Dados Coletados (Resumo)
 
@@ -224,7 +227,7 @@ Arquivo JSON (`medicoes_ram_metadados.json`) com:
 | Fedora 16 GB (Nicolas) | 15,69 | 15,7 | 0,2596 | 15,0 | 16,0 | 30 |
 | Windows 16 GB (Nicolas) | 40,06 | 39,9 | 0,5587 | 39,2 | 41,5 | 30 |
 
----
+<br>
 
 ## Análise Estatística Mínima
 
@@ -291,7 +294,37 @@ Para 5% de precisão relativa a 95% de confiança, o $n$ necessário é:
 | Fedora 16 GB (Nicolas) | 1 | 30 | Sim |
 | Windows 16 GB (Nicolas) | 1 | 30 | Sim |
 
----
+<br>
+
+## Visualização
+
+### Visão Geral — Todos os Participantes
+
+![Boxplot geral — todos os participantes](https://raw.githubusercontent.com/carolfmayca/avd-ram/refs/heads/main/resultados/boxplot_geral.png)
+
+*Figura 1: Boxplot comparativo do uso de RAM em repouso para todos os participantes, agrupado por SO.*
+
+### Por Participante
+
+![Boxplot Carolina](https://raw.githubusercontent.com/carolfmayca/avd-ram/refs/heads/main/resultados/boxplot_carole.png)
+
+*Figura 2: Carolina — Ubuntu 24.04 (~15,5%) vs Windows 11 (~35%). Nota-se outliers no Windows (medições 24–30 com ~44%), causados por atividade do antivírus MsMpEng.*
+
+![Boxplot Luiza](https://raw.githubusercontent.com/carolfmayca/avd-ram/refs/heads/main/resultados/boxplot_luiza.png)
+
+*Figura 3: Luiza — Ubuntu 24.04 (~55%) vs Windows 11 (~80%). O Windows opera sob alta pressão de memória na máquina de 8 GB.*
+
+![Boxplot Nicolas](https://raw.githubusercontent.com/carolfmayca/avd-ram/refs/heads/main/resultados/boxplot_nic.png)
+
+*Figura 4: Nicolas — Fedora 44 (~15,7%) vs Windows 11 (~40%). Ambos os SOs apresentam baixa variabilidade, com ICs estreitos.*
+
+### Linux vs Windows — Comparação Agregada
+
+![Linux vs Windows](https://raw.githubusercontent.com/carolfmayca/avd-ram/refs/heads/main/resultados/boxplot_linux_vs_windows.png)
+
+*Figura 5: Comparação agregada Linux (Ubuntu/Fedora) vs Windows. Teste t de Welch: t = −7,87, p = 3,51 × 10⁻¹³, Cohen's d = −1,17 (efeito grande). A diferença é estatisticamente significativa.*
+
+<br>
 
 ## Interpretação
 
@@ -305,7 +338,7 @@ Os dados sugerem que o **sistema operacional tem influência significativa no pe
 
 O Windows consome sistematicamente mais RAM que distribuições Linux (Ubuntu e Fedora) nas mesmas condições, possivelmente devido a serviços nativos mais pesados (antivírus MsMpEng, explorer.exe, dwm.exe, TiWorker.exe, MemCompression) e maior uso de cache/buffers internos.
 
----
+<br>
 
 ## Limitações
 
@@ -315,7 +348,7 @@ O Windows consome sistematicamente mais RAM que distribuições Linux (Ubuntu e 
 4. As coletas Windows e Linux não foram realizadas rigorosamente no mesmo instante temporal.
 5. O próprio script de medição consome RAM (overhead de instrumentação).
 
----
+<br>
 
 ## Conclusão
 

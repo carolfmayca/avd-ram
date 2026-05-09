@@ -25,9 +25,10 @@ Av. Rodrigo Otávio, nº 6200, Coroado I, Manaus – AM, 69080-900
 
 ## Introdução
 
-Esse trabalho foi desenvolvido pelo grupo composto pelos membros citados acima e pertence à trilha de Dispositivos Pessoais. O estudo foi conduzido em dispositivos pessoais do mesmo tipo, diferenciando-se apenas pelo sistema operacional instalado, especificamente o Microsoft Windows e o Ubuntu.
+Esse trabalho foi desenvolvido pelo grupo composto pelos membros citados acima e pertence à trilha de Dispositivos Pessoais. O estudo foi conduzido em dispositivos pessoais dos integrantes da equipe, diferenciando-se principalmente pelo sistema operacional instalado, especificamente o Microsoft Windows, o Ubuntu e o Fedora.
 
-A proposta do Mini Estudo é estabelecer um baseline experimental que permita observar como esses sistemas operacionais gerenciam a memória RAM quando submetidos a uma carga de trabalho padronizada, composta por um conjunto fixo de aplicações executadas simultaneamente. A partir desse procedimento controlado, busca-se analisar o comportamento da memória disponível após a estabilização do sistema, possibilitando uma comparação inicial entre os ambientes avaliados.
+A proposta do Mini Estudo é construir um baseline experimental para observar o comportamento do consumo de memória RAM em cada sistema operacional quando submetido a uma carga de trabalho previamente definida. Para isso, será executado um conjunto equivalente de atividades, utilizando aplicações de mesma finalidade nos ambientes avaliados, buscando manter constantes as condições possíveis de controle, como o tipo de carga executada, o modo de energia, o tempo de estabilização antes da medição e o procedimento de coleta.
+
 
 <br>
 
@@ -35,7 +36,7 @@ A proposta do Mini Estudo é estabelecer um baseline experimental que permita ob
 
 ### 1. Qual é a pergunta operacional do Mini Estudo 1?
 
-Qual é o percentual de uso de RAM em estado estável após a abertura de um conjunto padronizado de aplicações, em máquinas com diferentes sistemas operacionais (Windows, Ubuntu e Fedora)?
+Qual é o percentual de uso de RAM em máquinas com diferentes sistemas operacionais (Windows, Ubuntu e Fedora)?
 
 <br>
 
@@ -47,7 +48,6 @@ O cenário-base consiste em dispositivos pessoais (notebooks) com configuraçõe
 - **Ubuntu 24.04**
 - **Fedora Linux 44**
 
-Cada operador executa o experimento na sua própria máquina, com reinicialização controlada antes de cada coleta.
 
 <br>
 
@@ -60,7 +60,7 @@ Cada operador executa o experimento na sua própria máquina, com reinicializaç
 
 ### 4. Qual instrumento será usado para medir?
 
-Script Python (`src/ram_monitor.py`) utilizando a biblioteca `psutil` para acessar `psutil.virtual_memory()`. O instrumento coleta automaticamente os dados em intervalos regulares e os registra em arquivo CSV.
+Script Python (`ram_monitor.py`) utilizando a biblioteca `psutil` para acessar `psutil.virtual_memory()`. O instrumento coleta automaticamente os dados em intervalos regulares e os registra em arquivo CSV.
 
 <br>
 
@@ -72,27 +72,22 @@ Mede **diretamente**. A função `psutil.virtual_memory().percent` retorna o per
 
 ### 6. Qual benchmark ou microbenchmark será executado?
 
-O experimento consiste em um **microbenchmark de estado estável**: após reinicialização do sistema, abre-se um conjunto fixo de aplicações (processos do SO + aplicações do usuário como navegador, VS Code), aguarda-se a estabilização, e coleta-se 30 medições com intervalo de 20 segundos entre cada uma.
+
+O estudo não emprega benchmark externo. O microbenchmark consiste na observação passiva do consumo de RAM durante um estado de repouso controlado: o sistema é inicializado, aguarda-se um período de estabilização e, sem interação ativa do usuário, o script coleta o uso de memória periodicamente. O próprio ram_monitor.py, por ser um processo Python em execução, representa um overhead de instrumentação mínimo e inevitável, registrado explicitamente como limitação do estudo.
+
 
 <br>
 
 ### 7. Qual carga de trabalho será aplicada?
 
-A carga é composta por:
+A carga é composta pelos processos nativos do sistema operacional (serviços de sistema, cache, gerenciador de janelas e daemons de segundo plano) que não podem ser encerrados, além de um conjunto fixo de condições de uso — nenhuma aplicação adicional aberta pelo usuário durante a coleta. Representa um cenário típico de computador pessoal em repouso.
 
-- Processos nativos do SO (serviços de sistema, cache, gerenciador de janelas)
-- Conjunto padronizado de aplicações abertas simultaneamente (navegador, editor de código, etc.)
-
-Cada operador manteve as mesmas aplicações abertas ao longo de todas as medições.
 
 <br>
 
 ### 8. Como a carga será caracterizada?
 
-A carga é uma **combinação entre realista e sintética**:
-
-- **Realista** por utilizar aplicações reais que representam um cenário típico de uso de computador pessoal.
-- **Sintética** pelo controle rigoroso: reinicialização antes de cada coleta, mesmo conjunto de processos, mesmo modo de energia.
+A carga é realista por utilizar aplicações reais que representam um cenário típico de uso de computador pessoal.
 
 **Dimensões:**
 
@@ -111,11 +106,9 @@ A carga é uma **combinação entre realista e sintética**:
 
 ### 10. O que será mantido constante?
 
-- Conjunto de aplicações abertas durante cada sessão de coleta
 - Modo de energia/desempenho da máquina
 - Intervalo entre medições (20 segundos)
 - Script de coleta (mesmo `ram_monitor.py` em todos os ambientes)
-- Condição de início: reinicialização controlada + estabilização antes da coleta
 
 <br>
 
@@ -177,7 +170,6 @@ Arquivo JSON (`medicoes_ram_metadados.json`) com:
 ### 15. O que o baseline não permitirá concluir?
 
 - Que um SO é universalmente "melhor" que outro no gerenciamento de RAM
-- Que as diferenças observadas se mantêm sob outras cargas de trabalho (uso extremo, jogos, edição de vídeo)
 - Que as diferenças se devem exclusivamente ao SO e não a outros fatores (hardware distinto, serviços pré-instalados)
 - Relações causais definitivas entre SO e eficiência de gerenciamento de memória
 - Comportamento em cenários de ociosidade total ou saturação de RAM
@@ -186,14 +178,13 @@ Arquivo JSON (`medicoes_ram_metadados.json`) com:
 
 ### 16. Qual é a principal ameaça à validade do estudo?
 
-**Diferenças na inicialização automática de processos entre SOs.** Cada sistema operacional inicia um conjunto próprio de serviços e processos de fundo que não podem ser completamente padronizados entre Windows, Ubuntu e Fedora. Além disso, as máquinas dos integrantes possuem configurações de hardware distintas (8 GB vs 16 GB, diferentes CPUs), o que impede uma comparação direta perfeitamente controlada.
+A principal ameaça à validade é a diferença na inicialização automática de processos nativos de cada SO e a impossibilidade de finalizá-los para manter um conjunto homogêneo de processos entre os sistemas comparados. Somam-se a isso variações de código binário entre arquiteturas distintas e o overhead das próprias ferramentas de medição, que consomem a mesma RAM que estão medindo.
 
 <br>
 
 ### 17. Qual cuidado metodológico principal será adotado?
 
-- Reinicialização controlada antes de cada sessão de coleta
-- Garantir que o mesmo conjunto de aplicações do usuário esteja ativo durante toda a coleta
+- Garantir que nenhuma aplicação será aberta pelo usuário durante toda a coleta
 - Aguardar estabilização do sistema antes de iniciar as medições
 - Registrar metadados completos para permitir auditoria e replicação
 - Utilizar o mesmo script de coleta em todos os ambientes

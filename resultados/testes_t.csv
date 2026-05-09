@@ -1,0 +1,5 @@
+comparacao,t_stat,p_valor,cohen_d,significativo_95
+carole/Ubuntu 24.04 vs carole/Windows 11,-21.2085,3.30e-19,-5.476,SIM
+luiza/Ubuntu 24.04 vs luiza/Windows 11,-49.1938,2.39e-32,-12.7018,SIM
+nic/Fedora 44 vs nic/Windows 11,-216.6478,2.68e-64,-55.9382,SIM
+Linux vs Windows,-7.8669,3.51e-13,-1.1727,SIM

@@ -1,0 +1,11 @@
+medicao,timestamp,so,ram_total_gb,ram_disponivel_gb,ram_usada_gb,uso_percent,num_processos,top1_nome,top1_pid,top1_ram_mb,top2_nome,top2_pid,top2_ram_mb,top3_nome,top3_pid,top3_ram_mb
+1,2026-05-09 14:59:19,Windows 10.0.26200,15.73,9.69,6.04,38.4,214,MsMpEng.exe,3644,386.1,explorer.exe,19472,257.1,MicrosoftSecurityApp.exe,7580,223.5
+2,2026-05-09 14:59:39,Windows 10.0.26200,15.73,9.58,6.16,39.1,225,MsMpEng.exe,3644,374.6,explorer.exe,19472,258.4,MicrosoftSecurityApp.exe,7580,223.2
+3,2026-05-09 15:00:00,Windows 10.0.26200,15.73,9.6,6.13,39.0,219,MsMpEng.exe,3644,340.4,explorer.exe,19472,257.8,MicrosoftSecurityApp.exe,7580,222.8
+4,2026-05-09 15:00:20,Windows 10.0.26200,15.73,9.3,6.43,40.9,239,MsMpEng.exe,3644,391.8,explorer.exe,19472,259.6,MicrosoftSecurityApp.exe,7580,223.2
+5,2026-05-09 15:00:40,Windows 10.0.26200,15.73,9.06,6.67,42.4,242,MsMpEng.exe,3644,392.8,TiWorker.exe,2468,293.1,explorer.exe,19472,262.7
+6,2026-05-09 15:01:01,Windows 10.0.26200,15.73,8.37,7.36,46.8,242,TiWorker.exe,2468,365.8,MsMpEng.exe,3644,361.1,OfficeClickToRun.exe,17608,279.0
+7,2026-05-09 15:01:21,Windows 10.0.26200,15.73,7.8,7.93,50.4,241,setup.exe,4664,1318.2,TiWorker.exe,2468,430.2,MsMpEng.exe,3644,354.0
+8,2026-05-09 15:01:42,Windows 10.0.26200,15.73,8.4,7.34,46.6,234,TiWorker.exe,2468,620.6,MsMpEng.exe,3644,354.5,explorer.exe,19472,262.6
+9,2026-05-09 15:02:02,Windows 10.0.26200,15.73,9.0,6.74,42.8,232,TiWorker.exe,2468,761.4,MsMpEng.exe,3644,343.4,explorer.exe,19472,264.8
+10,2026-05-09 15:02:23,Windows 10.0.26200,15.73,8.58,7.15,45.4,227,TiWorker.exe,2468,993.9,MsMpEng.exe,3644,343.4,explorer.exe,19472,262.5

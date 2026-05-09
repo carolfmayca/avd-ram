@@ -236,7 +236,7 @@ Arquivo JSON (`medicoes_ram_metadados.json`) com:
 **Ubuntu 16 GB (Carolina):** $\bar{x} = 15,48\%$, $s = 0,0592$, $n = 30$
 
 $$
-IC_{95\%} = \left[15,48 - \frac{0,0592 \times 1,960}{\sqrt{30}}\;;\; 15,48 + \frac{0,0592 \times 1,960}{\sqrt{30}}\right] = [15,46\%\;;\; 15,50\%]
+IC_{95\\%} = \left[15,48 - \frac{0,0592 \times 1,960}{\sqrt{30}}\;;\; 15,48 + \frac{0,0592 \times 1,960}{\sqrt{30}}\right] = [15,46\\%\;;\; 15,50\\%]
 $$
 
 Precisão relativa: $0,14\%$ — excelente.
@@ -244,7 +244,7 @@ Precisão relativa: $0,14\%$ — excelente.
 **Windows 16 GB (Carolina):** $\bar{x} = 35,22\%$, $s = 5,0959$, $n = 30$
 
 $$
-IC_{95\%} = \left[35,22 - \frac{5,0959 \times 1,960}{\sqrt{30}}\;;\; 35,22 + \frac{5,0959 \times 1,960}{\sqrt{30}}\right] = [33,39\%\;;\; 37,04\%]
+IC_{95\\%} = \left[35,22 - \frac{5,0959 \times 1,960}{\sqrt{30}}\;;\; 35,22 + \frac{5,0959 \times 1,960}{\sqrt{30}}\right] = [33,39\\%\;;\; 37,04\\%]
 $$
 
 Precisão relativa: $5,18\%$ — no limiar de 5%. O desvio padrão elevado reflete um pico de uso durante a coleta (medições 24–30 com ~44%), possivelmente causado por atividade do antivírus MsMpEng. $n$ necessário para 5%: 33 (≈ o $n$ atual de 30).
@@ -252,7 +252,7 @@ Precisão relativa: $5,18\%$ — no limiar de 5%. O desvio padrão elevado refle
 **Ubuntu 8 GB (Luiza):** $\bar{x} = 55,13\%$, $s = 0,7029$, $n = 30$
 
 $$
-IC_{95\%} = \left[55,13 - \frac{0,7029 \times 1,960}{\sqrt{30}}\;;\; 55,13 + \frac{0,7029 \times 1,960}{\sqrt{30}}\right] = [54,88\%\;;\; 55,38\%]
+IC_{95\\%} = \left[55,13 - \frac{0,7029 \times 1,960}{\sqrt{30}}\;;\; 55,13 + \frac{0,7029 \times 1,960}{\sqrt{30}}\right] = [54,88\\%\;;\; 55,38\\%]
 $$
 
 Precisão relativa: $0,46\%$ — excelente.
@@ -260,7 +260,7 @@ Precisão relativa: $0,46\%$ — excelente.
 **Windows 8 GB (Luiza):** $\bar{x} = 80,39\%$, $s = 2,7232$, $n = 30$
 
 $$
-IC_{95\%} = \left[80,39 - \frac{2,7232 \times 1,960}{\sqrt{30}}\;;\; 80,39 + \frac{2,7232 \times 1,960}{\sqrt{30}}\right] = [79,42\%\;;\; 81,37\%]
+IC_{95\\%} = \left[80,39 - \frac{2,7232 \times 1,960}{\sqrt{30}}\;;\; 80,39 + \frac{2,7232 \times 1,960}{\sqrt{30}}\right] = [79,42\\%\;;\; 81,37\\%]
 $$
 
 Precisão relativa: $1,21\%$ — excelente.
@@ -268,7 +268,7 @@ Precisão relativa: $1,21\%$ — excelente.
 **Fedora 16 GB (Nicolas):** $\bar{x} = 15,69\%$, $s = 0,2596$, $n = 30$
 
 $$
-IC_{95\%} = \left[15,69 - \frac{0,2596 \times 1,960}{\sqrt{30}}\;;\ 15,69 + \frac{0,2596 \times 1,960}{\sqrt{30}}\right] = [15,59\%\;;\ 15,78\%]
+IC_{95\\%} = \left[15,69 - \frac{0,2596 \times 1,960}{\sqrt{30}}\;;\; 15,69 + \frac{0,2596 \times 1,960}{\sqrt{30}}\right] = [15,59\\%\;;\; 15,78\\%]
 $$
 
 Precisão relativa: $0,59\%$ — excelente.
@@ -276,7 +276,7 @@ Precisão relativa: $0,59\%$ — excelente.
 **Windows 16 GB (Nicolas):** $\bar{x} = 40,06\%$, $s = 0,5587$, $n = 30$
 
 $$
-IC_{95\%} = \left[40,06 - \frac{0,5587 \times 1,960}{\sqrt{30}}\;;\ 40,06 + \frac{0,5587 \times 1,960}{\sqrt{30}}\right] = [39,86\%\;;\ 40,26\%]
+IC_{95\\%} = \left[40,06 - \frac{0,5587 \times 1,960}{\sqrt{30}}\;;\; 40,06 + \frac{0,5587 \times 1,960}{\sqrt{30}}\right] = [39,86\\%\;;\; 40,26\\%]
 $$
 
 Precisão relativa: $0,50\%$ — excelente.

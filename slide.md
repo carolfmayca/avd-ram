@@ -128,7 +128,7 @@ Windows 16 GB (Carolina) apresentou maior variabilidade por atividade do antiví
 
 ## Visualização — Carolina (16 GB)
 
-![w:600](resultados/boxplot_carole.png)
+![w:600](resultados/boxplot_carolina.png)
 
 Ubuntu ~15,5% vs Windows ~35% — diferença de ~20 p.p.
 

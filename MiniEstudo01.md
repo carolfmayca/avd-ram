@@ -298,15 +298,15 @@ Para 5% de precisão relativa a 95% de confiança, o $n$ necessário é:
 
 ![Boxplot Carolina](https://raw.githubusercontent.com/carolfmayca/avd-ram/refs/heads/main/resultados/resultados/boxplot_carolina.png)
 
-*Figura 2: Carolina — Ubuntu 24.04 (~15,5%) vs Windows 11 (~35%). Nota-se outliers no Windows (medições 24–30 com ~44%), causados por atividade do antivírus MsMpEng.*
+*Figura 2: Carolina: Ubuntu 24.04 (~15,5%) vs Windows 11 (~35%). Nota-se outliers no Windows (medições 24–30 com ~44%), causados por atividade do antivírus MsMpEng.*
 
 ![Boxplot Luiza](https://raw.githubusercontent.com/carolfmayca/avd-ram/refs/heads/main/resultados/boxplot_luiza.png)
 
-*Figura 3: Luiza — Ubuntu 24.04 (~24%) vs Windows 11 (~65%). A variabilidade do Windows é causada pelo processo TiWorker.exe (Windows Update), que atingiu ~1.400 MB nas medições 21–23, gerando o pico de 81,8%.*
+*Figura 3: Luiza: Ubuntu 24.04 (~24%) vs Windows 11 (~65%). A variabilidade do Windows é causada pelo processo TiWorker.exe (Windows Update), que atingiu ~1.400 MB nas medições 21–23, gerando o pico de 81,8%.*
 
 ![Boxplot Nicolas](https://raw.githubusercontent.com/carolfmayca/avd-ram/refs/heads/main/resultados/boxplot_nic.png)
 
-*Figura 4: Nicolas — Fedora 44 (~15,7%) vs Windows 11 (~40%). Ambos os SOs apresentam baixa variabilidade, com ICs estreitos.*
+*Figura 4: Nicolas: Fedora 44 (~15,7%) vs Windows 11 (~40%). Ambos os SOs apresentam baixa variabilidade, com ICs estreitos.*
 
 ### Linux vs Windows — Comparação Agregada
 
@@ -330,15 +330,6 @@ O Windows consome sistematicamente mais RAM que distribuições Linux (Ubuntu e 
 
 <br>
 
-## Limitações
-
-1. As máquinas não possuem hardware idêntico (CPUs e RAM diferentes entre operadores).
-2. Não é possível garantir processos de fundo exatamente equivalentes entre SOs distintos.
-3. A carga de trabalho padronizada não representa todos os perfis de uso possíveis.
-4. As coletas Windows e Linux não foram realizadas rigorosamente no mesmo instante temporal.
-5. O próprio script de medição consome RAM (overhead de instrumentação).
-
-<br>
 
 ## Conclusão
 

@@ -81,8 +81,8 @@ Nicolas Mady Corrêa Gomes
 |---------|:---------:|:-------:|:------:|:---:|:---:|
 | Ubuntu 16 GB (Carolina) | 15,48 | 15,5 | 0,06 | 15,4 | 15,6 |
 | Windows 16 GB (Carolina) | 35,22 | 32,4 | 5,10 | 31,6 | 44,5 |
-| Ubuntu 8 GB (Luiza) | 55,13 | 55,0 | 0,70 | 54,4 | 57,8 |
-| Windows 8 GB (Luiza) | 80,39 | 80,2 | 2,72 | 74,7 | 85,6 |
+| Ubuntu 8 GB (Luiza) | 23,95 | 23,8 | 0,62 | 23,7 | 27,2 |
+| Windows 8 GB (Luiza) | 64,89 | 63,6 | 4,44 | 59,8 | 81,8 |
 | Fedora 16 GB (Nicolas) | 15,69 | 15,7 | 0,26 | 15,0 | 16,0 |
 | Windows 16 GB (Nicolas) | 40,06 | 39,9 | 0,56 | 39,2 | 41,5 |
 
@@ -95,13 +95,13 @@ Coleta: 2026-05-09, 30 medições por cenário
 | Cenário | IC 95% | Precisão Relativa |
 |---------|:------:|:-----------------:|
 | Ubuntu 16 GB (Carolina) | [15,46 ; 15,50] | 0,14% |
-| Windows 16 GB (Carolina) | [33,39 ; 37,04] | 5,18% |
-| Ubuntu 8 GB (Luiza) | [54,88 ; 55,38] | 0,46% |
-| Windows 8 GB (Luiza) | [79,42 ; 81,37] | 1,21% |
+| Windows 16 GB (Carolina) | [33,31 ; 37,12] | 5,40% |
+| Ubuntu 8 GB (Luiza) | [23,72 ; 24,18] | 0,96% |
+| Windows 8 GB (Luiza) | [63,24 ; 66,55] | 2,55% |
 | Fedora 16 GB (Nicolas) | [15,59 ; 15,78] | 0,59% |
 | Windows 16 GB (Nicolas) | [39,86 ; 40,26] | 0,50% |
 
-5 de 6 cenários com precisão < 1,5% — excelente
+5 de 6 cenários com precisão < 3% — excelente
 
 ---
 
@@ -110,9 +110,9 @@ Coleta: 2026-05-09, 30 medições por cenário
 | Cenário | n necessário (5%) | n coletado | Suficiente? |
 |---------|:-----------------:|:----------:|:-----------:|
 | Ubuntu 16 GB (Carolina) | 1 | 30 | Sim |
-| Windows 16 GB (Carolina) | 33 | 30 | Marginal |
-| Ubuntu 8 GB (Luiza) | 1 | 30 | Sim |
-| Windows 8 GB (Luiza) | 2 | 30 | Sim |
+| Windows 16 GB (Carolina) | 36 | 30 | Marginal |
+| Ubuntu 8 GB (Luiza) | 2 | 30 | Sim |
+| Windows 8 GB (Luiza) | 8 | 30 | Sim |
 | Fedora 16 GB (Nicolas) | 1 | 30 | Sim |
 | Windows 16 GB (Nicolas) | 1 | 30 | Sim |
 
@@ -138,7 +138,7 @@ Ubuntu ~15,5% vs Windows ~35% — diferença de ~20 p.p.
 
 ![w:600](resultados/boxplot_luiza.png)
 
-Ubuntu ~55% vs Windows ~80% — diferença de ~25 p.p.
+Ubuntu ~24% vs Windows ~65% — diferença de ~41 p.p.
 
 ---
 
@@ -154,14 +154,14 @@ Fedora ~15,7% vs Windows ~40% — diferença de ~24 p.p.
 
 ![w:600](resultados/boxplot_linux_vs_windows.png)
 
-Teste t de Welch: p = 3,51 × 10⁻¹³, Cohen's d = −1,17 (efeito grande)
+Teste t de Welch: p = 1,70 × 10⁻³⁵, Cohen's d = −2,82 (efeito muito grande)
 
 ---
 
 ## Interpretação
 
 - **16 GB:** Linux usa ~15,5% vs Windows ~35–40% — diferença de 20–24 p.p.
-- **8 GB:** Ubuntu usa ~55% vs Windows ~80% — diferença de ~25 p.p.
+- **8 GB:** Ubuntu usa ~24% vs Windows ~65% — diferença de ~41 p.p.
 - Ubuntu e Fedora apresentam resultados muito semelhantes nas máquinas de 16 GB
 - Windows opera sob pressão de memória significativamente maior
 
@@ -182,6 +182,6 @@ Teste t de Welch: p = 3,51 × 10⁻¹³, Cohen's d = −1,17 (efeito grande)
 ## Conclusão
 
 - **Windows consome significativamente mais RAM que Linux** nas condições testadas
-- Diferença de 20–25 pontos percentuais em todos os pares testados
-- Protocolo estável: ICs estreitos em 5/6 cenários (precisão < 1,5%)
+- Diferença de 20–41 pontos percentuais em todos os pares testados
+- Protocolo estável: ICs estreitos em 5/6 cenários (precisão < 3%)
 - Baseline estabelecido com sucesso para comparações futuras

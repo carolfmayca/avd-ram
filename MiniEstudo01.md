@@ -237,7 +237,7 @@ $$
 IC_{95\%} = \left[35,22 - \frac{2,045 \times 5,0959}{\sqrt{30}}; 35,22 + \frac{2,045 \times 5,0959}{\sqrt{30}}\right] = [33,31\%; 37,12\%]
 $$
 
-Precisão relativa: $5,40\%$ — no limiar de 5%. O desvio padrão elevado reflete picos de uso durante a coleta (medições com ~44%), possivelmente causados por atividade do antivírus MsMpEng. $n$ necessário para 5%: 33 (≈ o $n$ atual de 30).
+Precisão relativa: $5,40\%$ — no limiar de 5%. O desvio padrão elevado reflete picos de uso durante a coleta (medições com ~44%), possivelmente causados por atividade do antivírus MsMpEng. $n$ necessário para 5%: 36 (≈ o $n$ atual de 30).
 
 **Ubuntu 8 GB (Luiza):** $\bar{x} = 23,95\%$, $s = 0,6174$, $n = 30$
 
@@ -278,7 +278,7 @@ Para 5% de precisão relativa a 95% de confiança, o $n$ necessário é:
 | Cenário | $n$ necessário | $n$ coletado | Suficiente? |
 |---------|:---:|:---:|:---:|
 | Ubuntu 16 GB (Carolina) | 1 | 30 | Sim |
-| Windows 16 GB (Carolina) | 33 | 30 | Marginal |
+| Windows 16 GB (Carolina) | 36 | 30 | Marginal |
 | Ubuntu 8 GB (Luiza) | 2 | 30 | Sim |
 | Windows 8 GB (Luiza) | 8 | 30 | Sim |
 | Fedora 16 GB (Nicolas) | 1 | 30 | Sim |

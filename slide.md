@@ -94,7 +94,7 @@ Coleta: 2026-05-09, 30 medições por cenário
 
 | Cenário | IC 95% | Precisão Relativa |
 |---------|:------:|:-----------------:|
-| Ubuntu 16 GB (Carolina) | [15,46 ; 15,50] | 0,14% |
+| Ubuntu 16 GB (Carolina) | [15,46 ; 15,51] | 0,14% |
 | Windows 16 GB (Carolina) | [33,31 ; 37,12] | 5,40% |
 | Ubuntu 8 GB (Luiza) | [23,72 ; 24,18] | 0,96% |
 | Windows 8 GB (Luiza) | [63,24 ; 66,55] | 2,55% |
@@ -140,6 +140,8 @@ Ubuntu ~15,5% vs Windows ~35% — diferença de ~20 p.p.
 
 Ubuntu ~24% vs Windows ~65% — diferença de ~41 p.p.
 
+Nota: TiWorker.exe (Windows Update) gerou pico de 81,8% nas medições 21–23
+
 ---
 
 ## Visualização — Nicolas (16 GB)
@@ -154,16 +156,19 @@ Fedora ~15,7% vs Windows ~40% — diferença de ~24 p.p.
 
 ![w:600](resultados/boxplot_linux_vs_windows.png)
 
-Teste t de Welch: p = 1,70 × 10⁻³⁵, Cohen's d = −2,82 (efeito muito grande)
+Linux: μ = 18,4% · Windows: μ = 46,7%
+
+Teste t de Welch: t = −18,93, p = 1,70 × 10⁻³⁵, Cohen's d = −2,82 (efeito muito grande)
 
 ---
 
 ## Interpretação
 
-- **16 GB:** Linux usa ~15,5% vs Windows ~35–40% — diferença de 20–24 p.p.
-- **8 GB:** Ubuntu usa ~24% vs Windows ~65% — diferença de ~41 p.p.
-- Ubuntu e Fedora apresentam resultados muito semelhantes nas máquinas de 16 GB
-- Windows opera sob pressão de memória significativamente maior
+- **16 GB (Carolina):** Ubuntu ~15,5% vs Windows ~35% — **~20 p.p.**
+- **16 GB (Nicolas):** Fedora ~15,7% vs Windows ~40% — **~24 p.p.**
+- **8 GB (Luiza):** Ubuntu ~24% vs Windows ~65% — **~41 p.p.**
+- Ubuntu e Fedora se comportam de forma muito semelhante (~15,5–16%) em 16 GB
+- Windows opera sob pressão de memória significativamente maior em todos os cenários
 
 **Causa provável:** serviços nativos mais pesados no Windows (MsMpEng, explorer.exe, dwm.exe, TiWorker.exe, MemCompression)
 
@@ -182,6 +187,7 @@ Teste t de Welch: p = 1,70 × 10⁻³⁵, Cohen's d = −2,82 (efeito muito gran
 ## Conclusão
 
 - **Windows consome significativamente mais RAM que Linux** nas condições testadas
-- Diferença de 20–41 pontos percentuais em todos os pares testados
-- Protocolo estável: ICs estreitos em 5/6 cenários (precisão < 3%)
+- Diferença de 20–41 p.p. em todos os pares testados (t = −18,93, p = 1,70 × 10⁻³⁵)
+- Protocolo estável: ICs estreitos em 5/6 cenários (precisão relativa < 3%)
+- Limitação: RAM total reportada difere ~380 MB entre SOs na mesma máquina (mapeamento de firmware)
 - Baseline estabelecido com sucesso para comparações futuras

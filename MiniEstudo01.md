@@ -29,7 +29,6 @@ Esse trabalho foi desenvolvido pelo grupo composto pelos membros citados acima e
 
 A proposta do Mini Estudo é construir um baseline experimental para observar o comportamento do consumo de memória RAM em cada sistema operacional quando submetido a uma carga de trabalho previamente definida. Para isso, será executado um conjunto equivalente de atividades, utilizando aplicações de mesma finalidade nos ambientes avaliados, buscando manter constantes as condições possíveis de controle, como o tipo de carga executada, o modo de energia, o tempo de estabilização antes da medição e o procedimento de coleta.
 
-
 <br>
 
 ## Ficha de Planejamento
@@ -47,7 +46,6 @@ O cenário-base consiste em dispositivos pessoais (notebooks) com configuraçõe
 - **Windows 11**
 - **Ubuntu 24.04**
 - **Fedora Linux 44**
-
 
 <br>
 
@@ -72,16 +70,13 @@ Mede **diretamente**. A função `psutil.virtual_memory().percent` retorna o per
 
 ### 6. Qual benchmark ou microbenchmark será executado?
 
-
 O estudo não emprega benchmark externo. O microbenchmark consiste na observação passiva do consumo de RAM durante um estado de repouso controlado: o sistema é inicializado, aguarda-se um período de estabilização e, sem interação ativa do usuário, o script coleta o uso de memória periodicamente. O próprio ram_monitor.py, por ser um processo Python em execução, representa um overhead de instrumentação mínimo e inevitável, registrado explicitamente como limitação do estudo.
-
 
 <br>
 
 ### 7. Qual carga de trabalho será aplicada?
 
 A carga é composta pelos processos nativos do sistema operacional (serviços de sistema, cache, gerenciador de janelas e daemons de segundo plano) que não podem ser encerrados, além de um conjunto fixo de condições de uso — nenhuma aplicação adicional aberta pelo usuário durante a coleta. Representa um cenário típico de computador pessoal em repouso.
-
 
 <br>
 
@@ -196,8 +191,8 @@ A principal ameaça à validade é a diferença na inicialização automática d
 
 | Operador | SO | RAM Total | Máquina | CPU Cores (fís/lóg) |
 |----------|:----:|:-----------:|:---------:|:--------------------:|
-| Carolina | Ubuntu 24.04 | 15,35 GB | carole | 10/12 |
-| Carolina | Windows 11 | 15,73 GB | CaroleIII | 10/12 |
+| Carolina | Ubuntu 24.04 | 15,35 GB | carolina | 10/12 |
+| Carolina | Windows 11 | 15,73 GB | carolinaIII | 10/12 |
 | Luiza | Ubuntu 24.04 | 7,50 GB | caxeixas | 4/8 |
 | Luiza | Windows 11 | 7,84 GB | swift | 4/8 |
 | Nicolas | Fedora Linux 44 | 15,13 GB | fedora | 14/18 |
@@ -213,21 +208,25 @@ A principal ameaça à validade é a diferença na inicialização automática d
 |---------|:---:|:---:|:---:|:---:|:---:|:---:|
 | Ubuntu 16 GB (Carolina) | 15,48 | 15,5 | 0,0592 | 15,4 | 15,6 | 30 |
 | Windows 16 GB (Carolina) | 35,22 | 32,4 | 5,0959 | 31,6 | 44,5 | 30 |
-| Ubuntu 8 GB (Luiza) | 55,13 | 55,0 | 0,7029 | 54,4 | 57,8 | 30 |
-| Windows 8 GB (Luiza) | 80,39 | 80,2 | 2,7232 | 74,7 | 85,6 | 30 |
+| Ubuntu 8 GB (Luiza) | 23,95 | 23,8 | 0,6174 | 23,7 | 27,2 | 30 |
+| Windows 8 GB (Luiza) | 64,89 | 63,6 | 4,4370 | 59,8 | 81,8 | 30 |
 | Fedora 16 GB (Nicolas) | 15,69 | 15,7 | 0,2596 | 15,0 | 16,0 | 30 |
 | Windows 16 GB (Nicolas) | 40,06 | 39,9 | 0,5587 | 39,2 | 41,5 | 30 |
 
+Esses dados foram coletados com 30 medições a cada 20 segundos
+
 <br>
 
-## Análise Estatística Mínima
+## Análise Estatística
 
 ### Intervalos de Confiança (95%) — Baseline 2026-05-09
+
+Os intervalos foram calculados com $t_{29;\,0{,}025} = 2{,}045$ (distribuição t de Student, $n-1 = 29$ graus de liberdade).
 
 **Ubuntu 16 GB (Carolina):** $\bar{x} = 15,48\%$, $s = 0,0592$, $n = 30$
 
 $$
-IC_{95\\%} = \left[15,48 - \frac{0,0592 \times 1,960}{\sqrt{30}}; 15,48 + \frac{0,0592 \times 1,960}{\sqrt{30}}\right] = [15,46\\%; 15,50\\%]
+IC_{95\%} = \left[15,48 - \frac{2,045 \times 0,0592}{\sqrt{30}}; 15,48 + \frac{2,045 \times 0,0592}{\sqrt{30}}\right] = [15,46\%; 15,51\%]
 $$
 
 Precisão relativa: $0,14\%$ — excelente.
@@ -235,42 +234,42 @@ Precisão relativa: $0,14\%$ — excelente.
 **Windows 16 GB (Carolina):** $\bar{x} = 35,22\%$, $s = 5,0959$, $n = 30$
 
 $$
-IC_{95\\%} = \left[35,22 - \frac{5,0959 \times 1,960}{\sqrt{30}}; 35,22 + \frac{5,0959 \times 1,960}{\sqrt{30}}\right] = [33,39\\%; 37,04\\%]
+IC_{95\%} = \left[35,22 - \frac{2,045 \times 5,0959}{\sqrt{30}}; 35,22 + \frac{2,045 \times 5,0959}{\sqrt{30}}\right] = [33,31\%; 37,12\%]
 $$
 
-Precisão relativa: $5,18\%$ — no limiar de 5%. O desvio padrão elevado reflete um pico de uso durante a coleta (medições 24–30 com ~44%), possivelmente causado por atividade do antivírus MsMpEng. $n$ necessário para 5%: 33 (≈ o $n$ atual de 30).
+Precisão relativa: $5,40\%$ — no limiar de 5%. O desvio padrão elevado reflete picos de uso durante a coleta (medições com ~44%), possivelmente causados por atividade do antivírus MsMpEng. $n$ necessário para 5%: 33 (≈ o $n$ atual de 30).
 
-**Ubuntu 8 GB (Luiza):** $\bar{x} = 55,13\%$, $s = 0,7029$, $n = 30$
-
-$$
-IC_{95\\%} = \left[55,13 - \frac{0,7029 \times 1,960}{\sqrt{30}}; 55,13 + \frac{0,7029 \times 1,960}{\sqrt{30}}\right] = [54,88\\%; 55,38\\%]
-$$
-
-Precisão relativa: $0,46\%$ — excelente.
-
-**Windows 8 GB (Luiza):** $\bar{x} = 80,39\%$, $s = 2,7232$, $n = 30$
+**Ubuntu 8 GB (Luiza):** $\bar{x} = 23,95\%$, $s = 0,6174$, $n = 30$
 
 $$
-IC_{95\\%} = \left[80,39 - \frac{2,7232 \times 1,960}{\sqrt{30}}; 80,39 + \frac{2,7232 \times 1,960}{\sqrt{30}}\right] = [79,42\\%; 81,37\\%]
+IC_{95\%} = \left[23,95 - \frac{2,045 \times 0,6174}{\sqrt{30}}; 23,95 + \frac{2,045 \times 0,6174}{\sqrt{30}}\right] = [23,72\%; 24,18\%]
 $$
 
-Precisão relativa: $1,21\%$ — excelente.
+Precisão relativa: $0,96\%$ — excelente.
+
+**Windows 8 GB (Luiza):** $\bar{x} = 64,89\%$, $s = 4,4370$, $n = 30$
+
+$$
+IC_{95\%} = \left[64,89 - \frac{2,045 \times 4,4370}{\sqrt{30}}; 64,89 + \frac{2,045 \times 4,4370}{\sqrt{30}}\right] = [63,24\%; 66,55\%]
+$$
+
+Precisão relativa: $2,55\%$ — excelente. A variabilidade é influenciada pela atividade do processo TiWorker.exe (Windows Update) que atingiu até ~1.400 MB nas medições 21–23.
 
 **Fedora 16 GB (Nicolas):** $\bar{x} = 15,69\%$, $s = 0,2596$, $n = 30$
 
 $$
-IC_{95\\%} = \left[15,69 - \frac{0,2596 \times 1,960}{\sqrt{30}}; 15,69 + \frac{0,2596 \times 1,960}{\sqrt{30}}\right] = [15,59\\%; 15,78\\%]
+IC_{95\%} = \left[15,69 - \frac{2,045 \times 0,2596}{\sqrt{30}}; 15,69 + \frac{2,045 \times 0,2596}{\sqrt{30}}\right] = [15,59\%; 15,78\%]
 $$
 
-Precisão relativa: $0,59\%$ — excelente.
+Precisão relativa: $0,62\%$ — excelente.
 
 **Windows 16 GB (Nicolas):** $\bar{x} = 40,06\%$, $s = 0,5587$, $n = 30$
 
 $$
-IC_{95\\%} = \left[40,06 - \frac{0,5587 \times 1,960}{\sqrt{30}}; 40,06 + \frac{0,5587 \times 1,960}{\sqrt{30}}\right] = [39,86\\%; 40,26\\%]
+IC_{95\%} = \left[40,06 - \frac{2,045 \times 0,5587}{\sqrt{30}}; 40,06 + \frac{2,045 \times 0,5587}{\sqrt{30}}\right] = [39,85\%; 40,27\%]
 $$
 
-Precisão relativa: $0,50\%$ — excelente.
+Precisão relativa: $0,52\%$ — excelente.
 
 ### Suficiência Amostral
 
@@ -280,8 +279,8 @@ Para 5% de precisão relativa a 95% de confiança, o $n$ necessário é:
 |---------|:---:|:---:|:---:|
 | Ubuntu 16 GB (Carolina) | 1 | 30 | Sim |
 | Windows 16 GB (Carolina) | 33 | 30 | Marginal |
-| Ubuntu 8 GB (Luiza) | 1 | 30 | Sim |
-| Windows 8 GB (Luiza) | 2 | 30 | Sim |
+| Ubuntu 8 GB (Luiza) | 2 | 30 | Sim |
+| Windows 8 GB (Luiza) | 8 | 30 | Sim |
 | Fedora 16 GB (Nicolas) | 1 | 30 | Sim |
 | Windows 16 GB (Nicolas) | 1 | 30 | Sim |
 
@@ -297,13 +296,13 @@ Para 5% de precisão relativa a 95% de confiança, o $n$ necessário é:
 
 ### Por Participante
 
-![Boxplot Carolina](https://raw.githubusercontent.com/carolfmayca/avd-ram/refs/heads/main/resultados/boxplot_carole.png)
+![Boxplot Carolina](https://raw.githubusercontent.com/carolfmayca/avd-ram/refs/heads/main/resultados/resultados/boxplot_carolina.png)
 
 *Figura 2: Carolina — Ubuntu 24.04 (~15,5%) vs Windows 11 (~35%). Nota-se outliers no Windows (medições 24–30 com ~44%), causados por atividade do antivírus MsMpEng.*
 
 ![Boxplot Luiza](https://raw.githubusercontent.com/carolfmayca/avd-ram/refs/heads/main/resultados/boxplot_luiza.png)
 
-*Figura 3: Luiza — Ubuntu 24.04 (~55%) vs Windows 11 (~80%). O Windows opera sob alta pressão de memória na máquina de 8 GB.*
+*Figura 3: Luiza — Ubuntu 24.04 (~24%) vs Windows 11 (~65%). A variabilidade do Windows é causada pelo processo TiWorker.exe (Windows Update), que atingiu ~1.400 MB nas medições 21–23, gerando o pico de 81,8%.*
 
 ![Boxplot Nicolas](https://raw.githubusercontent.com/carolfmayca/avd-ram/refs/heads/main/resultados/boxplot_nic.png)
 
@@ -313,7 +312,7 @@ Para 5% de precisão relativa a 95% de confiança, o $n$ necessário é:
 
 ![Linux vs Windows](https://raw.githubusercontent.com/carolfmayca/avd-ram/refs/heads/main/resultados/boxplot_linux_vs_windows.png)
 
-*Figura 5: Comparação agregada Linux (Ubuntu/Fedora) vs Windows. Teste t de Welch: t = −7,87, p = 3,51 × 10⁻¹³, Cohen's d = −1,17 (efeito grande). A diferença é estatisticamente significativa.*
+*Figura 5: Comparação agregada Linux (Ubuntu/Fedora) vs Windows (n=90 cada). Linux: μ = 18,4%, IC95% [17,5%; 19,2%]. Windows: μ = 46,7%, IC95% [43,9%; 49,6%]. Teste t de Welch: t = −18,93, p = 1,70 × 10⁻³⁵, Cohen's d = −2,82 (efeito muito grande). A diferença é estatisticamente significativa.*
 
 <br>
 
@@ -321,11 +320,11 @@ Para 5% de precisão relativa a 95% de confiança, o $n$ necessário é:
 
 Os dados sugerem que o **sistema operacional tem influência significativa no percentual de uso de RAM**:
 
-- **Máquina 16 GB (Carolina):** Ubuntu usa **15,48%** (≈1,76 GB) enquanto Windows usa **35,22%** (≈5,5 GB) — diferença de **~20 pontos percentuais**.
+- **Máquina 16 GB (Carolina):** Ubuntu usa **15,48%** (≈2,4 GB) enquanto Windows usa **35,22%** (≈5,5 GB) — diferença de **~20 pontos percentuais**.
 - **Máquina 16 GB (Nicolas):** Fedora usa **15,69%** (≈2,4 GB) enquanto Windows usa **40,06%** (≈6,2 GB) — diferença de **~24 pontos percentuais**.
-- **Máquina 8 GB (Luiza):** Ubuntu usa **55,13%** (≈4,1 GB) enquanto Windows usa **80,39%** (≈6,3 GB) — diferença de **~25 pontos percentuais**.
-- O Windows opera sob pressão de memória significativamente maior, especialmente na máquina de 8 GB (>80% de uso).
-- Ubuntu e Fedora apresentam resultados muito semelhantes (~15,5%) nas máquinas de 16 GB.
+- **Máquina 8 GB (Luiza):** Ubuntu usa **23,95%** (≈1,8 GB) enquanto Windows usa **64,89%** (≈5,1 GB) — diferença de **~41 pontos percentuais**.
+- Ubuntu e Fedora apresentam resultados muito semelhantes (~15,5–16%) nas máquinas de 16 GB. Na máquina de 8 GB, o Ubuntu também mantém uso moderado (~24%).
+- O Windows consome significativamente mais RAM em todos os cenários avaliados.
 
 O Windows consome sistematicamente mais RAM que distribuições Linux (Ubuntu e Fedora) nas mesmas condições, possivelmente devido a serviços nativos mais pesados (antivírus MsMpEng, explorer.exe, dwm.exe, TiWorker.exe, MemCompression) e maior uso de cache/buffers internos.
 
@@ -343,6 +342,6 @@ O Windows consome sistematicamente mais RAM que distribuições Linux (Ubuntu e 
 
 ## Conclusão
 
-O baseline demonstra que, para uma carga de trabalho típica de um usuário de dispositivo pessoal, **o Windows consome significativamente mais memória RAM que distribuições Linux** (Ubuntu e Fedora). Nas máquinas com 16 GB, a diferença chega a 20–24 pontos percentuais (~15% no Linux vs ~35–40% no Windows). Na máquina com 8 GB, o Windows opera sob alta pressão de memória (~80%), enquanto o Ubuntu mantém ~55% de uso.
+O baseline demonstra que, para uma carga de trabalho típica de um usuário de dispositivo pessoal, **o Windows consome significativamente mais memória RAM que distribuições Linux** (Ubuntu e Fedora). Nas máquinas com 16 GB, a diferença chega a 20–24 pontos percentuais (~15% no Linux vs ~35–40% no Windows). Na máquina com 8 GB, a diferença foi de ~41 pontos percentuais (Ubuntu ~24% vs Windows ~65%).
 
-O protocolo de coleta é estável e reprodutível. Os intervalos de confiança são estreitos para 5 dos 6 cenários (precisão relativa < 1,5%), validando o instrumento e a metodologia. O cenário Windows 16 GB (Carolina) apresentou maior variabilidade (precisão ~5%), possivelmente por atividade de processos de sistema (antivírus) durante a coleta.
+O protocolo de coleta é estável e reprodutível. Os intervalos de confiança são estreitos para 5 dos 6 cenários (precisão relativa < 3%), validando o instrumento e a metodologia. O cenário Windows 16 GB (Carolina) apresentou maior variabilidade (precisão ~5%), possivelmente por atividade do antivírus MsMpEng; o cenário Windows 8 GB (Luiza) também apresentou variabilidade (precisão ~2,55%) devido à atividade do TiWorker.exe (Windows Update) durante a coleta.

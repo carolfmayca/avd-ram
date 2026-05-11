@@ -15,17 +15,18 @@ style: |
   }
   table {
     font-size: 20px;
+    # 
   }
 ---
 
-**ICC305 2026/01 — Avaliação de Desempenho**
 
 # Mini Estudo 1: Baseline do Uso de RAM em Sistemas Operacionais
+
+ICC305 2026/01 — Avaliação de Desempenho
 
 Carolina Falabelo Maycá
 Luiza da Costa Caxeixa
 Nicolas Mady Corrêa Gomes
-
 
 ---
 
@@ -40,7 +41,7 @@ Nicolas Mady Corrêa Gomes
 
 ## Pergunta Operacional
 
-> Qual é o percentual de uso de RAM em estado estável após a abertura de um conjunto padronizado de aplicações, em máquinas com diferentes sistemas operacionais?
+> Qual é o percentual de uso de RAM em estado estável, em máquinas com diferentes sistemas operacionais?
 
 - **Métrica principal:** % de RAM utilizada (`uso_percent`)
 - **Instrumento:** Script Python com `psutil.virtual_memory().percent`
@@ -56,6 +57,7 @@ Nicolas Mady Corrêa Gomes
 4. Dados salvos em CSV + metadados em JSON
 
 **Controles:**
+
 - Mesmo conjunto de aplicações durante toda a coleta
 - Mesmo modo de energia
 - Mesmo script (`ram_monitor.py`) em todos os ambientes
@@ -65,7 +67,7 @@ Nicolas Mady Corrêa Gomes
 ## Ambientes de Coleta
 
 | Operador | SO | RAM | Máquina | CPU (fís/lóg) |
-|----------|:--:|:---:|:-------:|:-------------:|
+| ---------- | :--: | :---: | :-------: | :-------------: |
 | Carolina | Ubuntu 24.04 | 15,35 GB | carole | 10/12 |
 | Carolina | Windows 11 | 15,73 GB | CaroleIII | 10/12 |
 | Luiza | Ubuntu 24.04 | 7,50 GB | caxeixas | 4/8 |
@@ -78,7 +80,7 @@ Nicolas Mady Corrêa Gomes
 ## Dados Coletados — Resumo Estatístico
 
 | Cenário | Média (%) | Mediana | Desvio | Mín | Máx |
-|---------|:---------:|:-------:|:------:|:---:|:---:|
+| --------- | :---------: | :-------: | :------: | :---: | :---: |
 | Ubuntu 16 GB (Carolina) | 15,48 | 15,5 | 0,06 | 15,4 | 15,6 |
 | Windows 16 GB (Carolina) | 35,22 | 32,4 | 5,10 | 31,6 | 44,5 |
 | Ubuntu 8 GB (Luiza) | 23,95 | 23,8 | 0,62 | 23,7 | 27,2 |
@@ -93,7 +95,7 @@ Coleta: 2026-05-09, 30 medições por cenário
 ## Intervalos de Confiança (95%)
 
 | Cenário | IC 95% | Precisão Relativa |
-|---------|:------:|:-----------------:|
+| --------- | :------: | :-----------------: |
 | Ubuntu 16 GB (Carolina) | [15,46 ; 15,51] | 0,14% |
 | Windows 16 GB (Carolina) | [33,31 ; 37,12] | 5,40% |
 | Ubuntu 8 GB (Luiza) | [23,72 ; 24,18] | 0,96% |
@@ -101,14 +103,14 @@ Coleta: 2026-05-09, 30 medições por cenário
 | Fedora 16 GB (Nicolas) | [15,59 ; 15,78] | 0,59% |
 | Windows 16 GB (Nicolas) | [39,86 ; 40,26] | 0,50% |
 
-5 de 6 cenários com precisão < 3% — excelente
+5 de 6 cenários com precisão < 3%
 
 ---
 
 ## Suficiência Amostral
 
 | Cenário | n necessário (5%) | n coletado | Suficiente? |
-|---------|:-----------------:|:----------:|:-----------:|
+| --------- | :-----------------: | :----------: | :-----------: |
 | Ubuntu 16 GB (Carolina) | 1 | 30 | Sim |
 | Windows 16 GB (Carolina) | 36 | 30 | Marginal |
 | Ubuntu 8 GB (Luiza) | 2 | 30 | Sim |
@@ -122,7 +124,7 @@ Windows 16 GB (Carolina) apresentou maior variabilidade por atividade do antiví
 
 ## Visualização — Visão Geral
 
-![w:600](resultados/boxplot_geral.png)
+![w:800](resultados/boxplot_geral.png)
 
 ---
 
@@ -139,7 +141,6 @@ Ubuntu ~15,5% vs Windows ~35% — diferença de ~20 p.p.
 ![w:600](resultados/boxplot_luiza.png)
 
 Ubuntu ~24% vs Windows ~65% — diferença de ~41 p.p.
-
 Nota: TiWorker.exe (Windows Update) gerou pico de 81,8% nas medições 21–23
 
 ---
@@ -154,11 +155,8 @@ Fedora ~15,7% vs Windows ~40% — diferença de ~24 p.p.
 
 ## Visualização — Linux vs Windows (Agregado)
 
-![w:600](resultados/boxplot_linux_vs_windows.png)
-
-Linux: μ = 18,4% · Windows: μ = 46,7%
-
-Teste t de Welch: t = −18,93, p = 1,70 × 10⁻³⁵, Cohen's d = −2,82 (efeito muito grande)
+Linux: μ = 18,4%, Windows: μ = 46,7%; **Teste t de Welch**: t = −18,93, p = 1,70 × 10⁻³⁵, **Cohen's d** = −2,82 (efeito muito grande)
+![w:570](resultados/boxplot_linux_vs_windows.png)
 
 ---
 

@@ -242,7 +242,7 @@ Precisão relativa: $5,40\%$ — no limiar de 5%. O desvio padrão elevado refle
 **Ubuntu 8 GB (Luiza):** $\bar{x} = 23,95\%$, $s = 0,6174$, $n = 30$
 
 $$
-IC_{95\%} = \left[23{,}95 - \frac{2{,}045 \times 0{,}6174}{\sqrt{30}}; 23{,}95 + \frac{2{,}045 \times 0{,}6174}{\sqrt{30}}\right] = [23{,}72\%; 24{,}18\%]
+IC_{95\%} = [23{,}95 - \frac{2{,}045 \cdot 0{,}6174}{\sqrt{30}},\; 23{,}95 + \frac{2{,}045 \cdot 0{,}6174}{\sqrt{30}}] = [23{,}72\%,\; 24{,}18\%]
 $$
 
 Precisão relativa: $0,96\%$ — excelente.

@@ -226,7 +226,7 @@ Os intervalos foram calculados com $t_{29;\,0{,}025} = 2{,}045$ (distribuição 
 **Ubuntu 16 GB (Carolina):** $\bar{x} = 15,48\%$, $s = 0,0592$, $n = 30$
 
 $$
-IC_{95\%} = \left[15,48 - \frac{2,045 \times 0,0592}{\sqrt{30}}; 15,48 + \frac{2,045 \times 0,0592}{\sqrt{30}}\right] = [15,46\%; 15,51\%]
+IC_{95\%} = \left[15{,}48 - \frac{2{,}045 \times 0{,}0592}{\sqrt{30}}; 15{,}48 + \frac{2{,}045 \times 0{,}0592}{\sqrt{30}}\right] = [15{,}46\%; 15{,}51\%]
 $$
 
 Precisão relativa: $0,14\%$ — excelente.
@@ -234,7 +234,7 @@ Precisão relativa: $0,14\%$ — excelente.
 **Windows 16 GB (Carolina):** $\bar{x} = 35,22\%$, $s = 5,0959$, $n = 30$
 
 $$
-IC_{95\%} = \left[35,22 - \frac{2,045 \times 5,0959}{\sqrt{30}}; 35,22 + \frac{2,045 \times 5,0959}{\sqrt{30}}\right] = [33,31\%; 37,12\%]
+IC_{95\%} = \left[35{,}22 - \frac{2{,}045 \times 5{,}0959}{\sqrt{30}}; 35{,}22 + \frac{2{,}045 \times 5{,}0959}{\sqrt{30}}\right] = [33{,}31\%; 37{,}12\%]
 $$
 
 Precisão relativa: $5,40\%$ — no limiar de 5%. O desvio padrão elevado reflete picos de uso durante a coleta (medições com ~44%), possivelmente causados por atividade do antivírus MsMpEng. $n$ necessário para 5%: 36 (≈ o $n$ atual de 30).
@@ -242,7 +242,7 @@ Precisão relativa: $5,40\%$ — no limiar de 5%. O desvio padrão elevado refle
 **Ubuntu 8 GB (Luiza):** $\bar{x} = 23,95\%$, $s = 0,6174$, $n = 30$
 
 $$
-IC_{95\%} = \left[23,95 - \frac{2,045 \times 0,6174}{\sqrt{30}}; 23,95 + \frac{2,045 \times 0,6174}{\sqrt{30}}\right] = [23,72\%; 24,18\%]
+IC_{95\%} = \left[23{,}95 - \frac{2{,}045 \times 0{,}6174}{\sqrt{30}}; 23{,}95 + \frac{2{,}045 \times 0{,}6174}{\sqrt{30}}\right] = [23{,}72\%; 24{,}18\%]
 $$
 
 Precisão relativa: $0,96\%$ — excelente.
@@ -250,7 +250,7 @@ Precisão relativa: $0,96\%$ — excelente.
 **Windows 8 GB (Luiza):** $\bar{x} = 64,89\%$, $s = 4,4370$, $n = 30$
 
 $$
-IC_{95\%} = \left[64,89 - \frac{2,045 \times 4,4370}{\sqrt{30}}; 64,89 + \frac{2,045 \times 4,4370}{\sqrt{30}}\right] = [63,24\%; 66,55\%]
+IC_{95\%} = \left[64{,}89 - \frac{2{,}045 \times 4{,}4370}{\sqrt{30}}; 64{,}89 + \frac{2{,}045 \times 4{,}4370}{\sqrt{30}}\right] = [63{,}24\%; 66{,}55\%]
 $$
 
 Precisão relativa: $2,55\%$ — excelente. A variabilidade é influenciada pela atividade do processo TiWorker.exe (Windows Update) que atingiu até ~1.400 MB nas medições 21–23.
@@ -258,7 +258,7 @@ Precisão relativa: $2,55\%$ — excelente. A variabilidade é influenciada pela
 **Fedora 16 GB (Nicolas):** $\bar{x} = 15,69\%$, $s = 0,2596$, $n = 30$
 
 $$
-IC_{95\%} = \left[15,69 - \frac{2,045 \times 0,2596}{\sqrt{30}}; 15,69 + \frac{2,045 \times 0,2596}{\sqrt{30}}\right] = [15,59\%; 15,78\%]
+IC_{95\%} = \left[15{,}69 - \frac{2{,}045 \times 0{,}2596}{\sqrt{30}}; 15{,}69 + \frac{2{,}045 \times 0{,}2596}{\sqrt{30}}\right] = [15{,}59\%; 15{,}78\%]
 $$
 
 Precisão relativa: $0,62\%$ — excelente.
@@ -266,7 +266,7 @@ Precisão relativa: $0,62\%$ — excelente.
 **Windows 16 GB (Nicolas):** $\bar{x} = 40,06\%$, $s = 0,5587$, $n = 30$
 
 $$
-IC_{95\%} = \left[40,06 - \frac{2,045 \times 0,5587}{\sqrt{30}}; 40,06 + \frac{2,045 \times 0,5587}{\sqrt{30}}\right] = [39,85\%; 40,27\%]
+IC_{95\%} = \left[40{,}06 - \frac{2{,}045 \times 0{,}5587}{\sqrt{30}}; 40{,}06 + \frac{2{,}045 \times 0{,}5587}{\sqrt{30}}\right] = [39{,}85\%; 40{,}27\%]
 $$
 
 Precisão relativa: $0,52\%$ — excelente.

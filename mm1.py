@@ -271,7 +271,7 @@ def exercise2(sim: MM1Queue) -> None:
         ok = "✓" if H <= d else "✗"
         print(
             f"{d:>8.2f} | {n:{W},} | {mean:>12.6f} | "
-            f"{H:>12.6f} | {2*d:>8.4f} | {ok:>8} | {elapsed:>9.1f}s"
+            f"{H:>12.6f} | {2*d:>8.4f} | {ok:>8} | {elapsed:>9.5f}s"
         )
 
     print()
@@ -294,7 +294,7 @@ def exercise3(sim: MM1Queue) -> None:
     print(f"  H / X̄     = {H / mean:.4%}   (target ≤ 5 %)")
     print(f"  95 % CI    = [ {lo:.6f} ,  {hi:.6f} ]")
     print(f"  E[X]       = {E:.6f} s   (theoretical)")
-    print(f"  wall-time  = {elapsed:.1f} s")
+    print(f"  wall-time  = {elapsed:.5f} s")
     print()
 
 

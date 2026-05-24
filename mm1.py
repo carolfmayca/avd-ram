@@ -244,7 +244,7 @@ def exercise1(sim: MM1Queue, max_exp: int = 9) -> None:
         err = abs(mean - E)
         print(
             f"{n:{W},} | {mean:{W}.6f} | {lo:{W}.6f} | "
-            f"{hi:{W}.6f} | {H:{W}.6f} | {err:{W}.6f} | {elapsed:>9.1f}s"
+            f"{hi:{W}.6f} | {H:{W}.6f} | {err:{W}.6f} | {elapsed:>9.5f}s"
         )
 
     print()

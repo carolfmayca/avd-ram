@@ -13,8 +13,11 @@ Usage
 """
 
 import argparse
+import json
+import os
 import textwrap
 import time
+from datetime import datetime
 
 import numpy as np
 
@@ -209,6 +212,36 @@ class MM1Queue:
         return self.stats.n, self.stats.mean, self.stats.half_width()
 
 
+# ── Logging helpers ──────────────────────────────────────────────────────────
+def _ensure_log_dir() -> None:
+    """Create logs directory if it doesn't exist."""
+    os.makedirs("logs", exist_ok=True)
+
+
+def _log_result(exercise_num: int, data: dict) -> None:
+    """Append a result entry to the exercise log file (formatted JSON)."""
+    _ensure_log_dir()
+    log_file = f"logs/exercise{exercise_num}.log"
+    
+    # Load existing entries or start fresh
+    if os.path.exists(log_file):
+        with open(log_file, "r") as f:
+            try:
+                entries = json.load(f)
+            except json.JSONDecodeError:
+                entries = []
+    else:
+        entries = []
+    
+    # Append new entry
+    entry = {"timestamp": datetime.now().isoformat(), **data}
+    entries.append(entry)
+    
+    # Write formatted JSON
+    with open(log_file, "w") as f:
+        json.dump(entries, f, indent=2)
+
+
 # ── Pretty-print helpers ──────────────────────────────────────────────────────
 def _banner(title: str) -> None:
     bar = "=" * 72
@@ -236,23 +269,29 @@ def exercise1(sim: MM1Queue, max_exp: int = 9) -> None:
     print(hdr)
     print(sep)
 
+    results = []
     for n in ns:
         t0 = time.perf_counter()
         mean, H = sim.run_fixed(n)
         elapsed = time.perf_counter() - t0
         lo, hi = mean - H, mean + H
         err = abs(mean - E)
+        results.append(
+            {"n": n, "mean": mean, "H": H, "ci_lower": lo, "ci_upper": hi, "error": err, "elapsed": elapsed}
+        )
         print(
             f"{n:{W},} | {mean:{W}.6f} | {lo:{W}.6f} | "
             f"{hi:{W}.6f} | {H:{W}.6f} | {err:{W}.6f} | {elapsed:>9.5f}s"
         )
 
     print()
+    _log_result(1, {"max_exp": max_exp, "E_theoretical": E, "results": results})
 
 
 def exercise2(sim: MM1Queue) -> None:
     """Chow-Robbins stopping rule for d ∈ {1.0, 0.5, 0.1, 0.05}."""
     _banner("Exercise 2 — Chow-Robbins stopping rule  (stop when H ≤ d)")
+    E = theoretical_mean()
     ds = [1.0, 0.5, 0.1, 0.05]
     W = 14
 
@@ -264,17 +303,20 @@ def exercise2(sim: MM1Queue) -> None:
     print(hdr)
     print(sep)
 
+    results = []
     for d in ds:
         t0 = time.perf_counter()
         n, mean, H = sim.run_chow_robbins(d)
         elapsed = time.perf_counter() - t0
         ok = "✓" if H <= d else "✗"
+        results.append({"d": d, "n_final": n, "mean": mean, "H": H, "criterion_met": ok == "✓", "elapsed": elapsed})
         print(
             f"{d:>8.2f} | {n:{W},} | {mean:>12.6f} | "
             f"{H:>12.6f} | {2*d:>8.4f} | {ok:>8} | {elapsed:>9.5f}s"
         )
 
     print()
+    _log_result(2, {"E_theoretical": E, "results": results})
 
 
 def exercise3(sim: MM1Queue) -> None:
@@ -296,6 +338,20 @@ def exercise3(sim: MM1Queue) -> None:
     print(f"  E[X]       = {E:.6f} s   (theoretical)")
     print(f"  wall-time  = {elapsed:.5f} s")
     print()
+    _log_result(
+        3,
+        {
+            "gamma": 0.05,
+            "n_final": n,
+            "mean": mean,
+            "H": H,
+            "relative_ci": H / mean,
+            "ci_lower": lo,
+            "ci_upper": hi,
+            "E_theoretical": E,
+            "elapsed": elapsed,
+        },
+    )
 
 
 # ── CLI ───────────────────────────────────────────────────────────────────────

@@ -25,7 +25,7 @@ import numpy as np
 LAM = 9.0  # arrival rate  λ  (clients / second)
 MU = 10.0  # service rate  μ  (clients / second)
 Z95 = 1.96  # z_{0.975}  for 95% CI
-BATCH_SIZE = 1_000_000  # customers generated per internal batch
+BATCH_SIZE = 100  # customers generated per internal batch
 
 
 # ── Theoretical reference ────────────────────────────────────────────────────
@@ -187,7 +187,7 @@ class MM1Queue:
         """
         self._reset()
         while True:
-            self._step(1)
+            self._step(BATCH_SIZE)
             if self.stats.n >= min_n and self.stats.half_width() <= d:
                 break
         return self.stats.n, self.stats.mean, self.stats.half_width()
@@ -205,7 +205,7 @@ class MM1Queue:
         """
         self._reset()
         while True:
-            self._step(1) # incrementa de 1 em 1
+            self._step(BATCH_SIZE) 
             s = self.stats
             if s.n >= min_n and s.mean > 0 and s.half_width() / s.mean <= gamma:
                 break

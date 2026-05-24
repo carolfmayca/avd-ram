@@ -172,7 +172,7 @@ class MM1Queue:
 
     # ── Exercise 2 ────────────────────────────────────────────────────────────
     def run_chow_robbins(
-        self, d: float, min_n: int = 1_000
+        self, d: float, min_n: int = 0
     ) -> tuple[int, float, float]:
         """
         Chow-Robbins stopping rule: stop when H ≤ d  (CI width ≤ 2d)
@@ -184,7 +184,7 @@ class MM1Queue:
         """
         self._reset()
         while True:
-            self._step(BATCH_SIZE)
+            self._step(1)
             if self.stats.n >= min_n and self.stats.half_width() <= d:
                 break
         return self.stats.n, self.stats.mean, self.stats.half_width()
@@ -202,7 +202,7 @@ class MM1Queue:
         """
         self._reset()
         while True:
-            self._step(BATCH_SIZE)
+            self._step(1) # incrementa de 1 em 1
             s = self.stats
             if s.n >= min_n and s.mean > 0 and s.half_width() / s.mean <= gamma:
                 break

@@ -39,6 +39,65 @@ $$T_c = -\frac{1}{\lambda} \ln(1 - U), \quad T_s = -\frac{1}{\mu} \ln(1 - U), \q
 
 As chegadas e os tempos de serviço são gerados em lotes com `numpy` (`rng.exponential`) e depois processados pelo laço de Lindley.
 
+### Implementação da classe MM1
+
+```python
+class MM1Queue:
+    def __init__(self, lam=LAM, mu=MU, seed=None):
+        self.lam = lam
+        self.mu  = mu
+        self.rng = np.random.default_rng(seed)
+        self._reset()
+
+    def _reset(self):
+        self._se   = 0.0
+        self._t    = 0.0
+        self.stats = OnlineStats()
+
+    def _step(self, size):
+        ia = self.rng.exponential(1.0 / self.lam, size).tolist()
+        st = self.rng.exponential(1.0 / self.mu,  size).tolist()
+        waiting, self._se, self._t = _lindley_loop(ia, st, self._se, self._t)
+        self.stats.add_batch(np.array(waiting, dtype=np.float64))
+
+    # Exercício 1
+    def run_fixed(self, n):
+        """Simula exatamente n clientes. Retorna (média, H)."""
+        self._reset()
+        done = 0
+        while done < n:
+            self._step(min(BATCH_SIZE, n - done))
+            done = self.stats.n
+        return self.stats.mean, self.stats.half_width
+
+    # Exercício 2 — Chow-Robbins
+    def run_chow_robbins(self, d, min_n=30):
+        """
+        Para quando H ≤ d (largura IC ≤ 2d) e n ≥ min_n.
+        min_n evita parada espúria com variância degenerada em amostras tiny.
+        Retorna (n, média, H).
+        """
+        self._reset()
+        while True:
+            self._step(1)
+            if self.stats.n >= min_n and self.stats.half_width <= d:
+                break
+        return self.stats.n, self.stats.mean, self.stats.half_width
+
+    # Exercício 3 — IC relativo
+    def run_relative_ci(self, gamma=0.05, min_n=30):
+        """
+        Para quando H / X̄ ≤ γ e n ≥ min_n.
+        Retorna (n, média, H).
+        """
+        self._reset()
+        while True:
+            self._step(1)
+            s = self.stats
+            if s.n >= min_n and s.mean > 0 and s.half_width / s.mean <= gamma:
+                break
+        return self.stats.n, self.stats.mean, self.stats.half_width
+```
 ---
 
 ## Exercício 1 — Simulação com n Fixo

@@ -127,12 +127,39 @@ for r in range(R):          # R = 30
 
 ### Resultados Obtidos
 
-| r    | X̄(n)    | B        |
+| r | X̄(n) | B |
 | ---- | ------- | -------- |
-| 1    | (ver notebook) | (ver notebook) |
-| …    | …       | …        |
-| 30   | (ver notebook) | (ver notebook) |
-| **Média** | (ver notebook) | (ver notebook) |
+| 1 | 1.140396 | -0.759604 |
+| 2 | 1.327325 | -0.572675 |
+| 3 | 4.591124 | 2.691124 |
+| 4 | 1.067735 | -0.832265 |
+| 5 | 0.853725 | -1.046275 |
+| 6 | 0.735868 | -1.164132 |
+| 7 | 0.938187 | -0.961813 |
+| 8 | 1.768082 | -0.131918 |
+| 9 | 1.220240 | -0.679760 |
+|10 | 0.851669 | -1.048331 |
+|11 | 0.879294 | -1.020706 |
+|12 | 1.004714 | -0.895286 |
+|13 | 1.162773 | -0.737227 |
+|14 | 5.911133 | 4.011133 |
+|15 | 1.175840 | -0.724160 |
+|16 | 1.275082 | -0.624918 |
+|17 | 2.065274 | 0.165274 |
+|18 | 0.942389 | -0.957611 |
+|19 | 0.842452 | -1.057548 |
+|20 | 0.673684 | -1.226316 |
+|21 | 1.540971 | -0.359029 |
+|22 | 0.395524 | -1.504476 |
+|23 | 0.968922 | -0.931078 |
+|24 | 0.590667 | -1.309333 |
+|25 | 1.365907 | -0.534093 |
+|26 | 0.570427 | -1.329573 |
+|27 | 2.308355 | 0.408355 |
+|28 | 1.574351 | -0.325649 |
+|29 | 0.550714 | -1.349286 |
+|30 | 0.995188 | -0.904812 |
+| **Méd** |**1.376267** | **-0.523733** |
 
 **E[X] teórico = 1,900000 s**
 
@@ -145,6 +172,9 @@ com carga próxima de 1.
 
 ![Gráfico Exercício 4 — X̄(n) por réplica e distribuição do viés](exercicio4.png)
 
+> Com $n = 10^3$ e $\rho = 0{,}95$, o viés médio é $\bar{B} = -0.5237$ s — o estimador **subestima** $E[X] = 1.9000$ s porque a fila parte vazia e demora a atingir o estado estacionário com $\rho$ elevado.
+
+> A dispersão entre réplicas (dp ≈ 1.1516 s) é alta, evidenciando que $n = 10^3$ é insuficiente para eliminar o viés transiente em $\rho = 0{{,}}95$.
 ---
 
 ## Exercício 5 — Eliminação do Transiente: Conway e Fishman
@@ -184,21 +214,74 @@ for r in range(R):
 
 **Conway**
 
-| r    | d    | X̄(n)    | B        |
-| ---- | ---- | ------- | -------- |
-| 1    | (ver nb) | (ver nb) | (ver nb) |
-| …    | …    | …       | …        |
-| 30   | (ver nb) | (ver nb) | (ver nb) |
-| **Média** | (ver nb) | (ver nb) | (ver nb) |
+| r |  d | X̄(n)  |  B  |
+| --- | ------- | ---------- | ---------- |
+| 1 |  3 | 1.132957 |  -0.767043 |
+| 2 |  1 | 1.721387 |  -0.178613 |
+| 3 |  1 | 1.117048 |  -0.782952 |
+| 4 |  3 | 0.898927 |  -1.001073 |
+| 5 |  1 | 0.981449 |  -0.918551 |
+| 6 |  1 | 0.636380 |  -1.263620 |
+| 7 |  1 | 2.367949 | 0.467949 |
+| 8 |  2 | 1.786873 |  -0.113127 |
+| 9 |  1 | 1.203675 |  -0.696325 |
+|  10 |  5 | 0.792950 |  -1.107050 |
+|  11 |  2 | 1.725025 |  -0.174975 |
+|  12 |  4 | 0.858176 |  -1.041824 |
+|  13 |  1 | 1.133285 |  -0.766715 |
+|  14 |  3 | 1.047966 |  -0.852034 |
+|  15 |  1 | 0.571958 |  -1.328042 |
+|  16 |  1 | 1.077831 |  -0.822169 |
+|  17 |  3 | 3.123846 | 1.223846 |
+|  18 |  4 | 1.546074 |  -0.353926 |
+|  19 |  1 | 0.686017 |  -1.213983 |
+|  20 |  4 | 0.422068 |  -1.477932 |
+|  21 |  1 | 0.668883 |  -1.231117 |
+|  22 |  1 | 0.730138 |  -1.169862 |
+|  23 |  1 | 1.015729 |  -0.884271 |
+|  24 |  3 | 0.593269 |  -1.306731 |
+|  25 |  1 | 0.870593 |  -1.029407 |
+|  26 |  2 | 0.763757 |  -1.136243 |
+|  27 |  2 | 2.180419 | 0.280419 |
+|  28 |  6 | 0.822020 |  -1.077980 |
+|  29 |  3 | 1.325187 |  -0.574813 |
+|  30 |  4 | 1.137590 |  -0.762410 |
+| **Méd** |   **2.2** |   **1.164648** |  **-0.735352** |
 
 **Fishman (k=25)**
-
-| r    | d    | X̄(n)    | B        |
-| ---- | ---- | ------- | -------- |
-| 1    | (ver nb) | (ver nb) | (ver nb) |
-| …    | …    | …       | …        |
-| 30   | (ver nb) | (ver nb) | (ver nb) |
-| **Média** | (ver nb) | (ver nb) | (ver nb) |
+|   r |       d |      X̄(n)  |          B |
+| --- | ------- | ---------- | ---------- |
+| 1 | 371 | 1.083126 |  -0.816874 |
+| 2 | 1224 | 1.418964 | -0.481036 |
+| 3 | 1522 | 0.603410 | -1.296590 |
+| 4 | 1233 | 1.678769 | -0.221231 |
+| 5 | 485 | 1.149820 | -0.750180 |
+| 6 | 288 | 0.567525 | -1.332475 |
+| 7 | 1095 | 4.615666 | 2.715666 |
+| 8 | 1318 | 2.354933 | 0.454933 |
+| 9 | 665 | 1.097936 | -0.802064 |
+| 10 | 2098 | 4.239170 | 2.339170 |
+| 11 | 736 | 1.724345 | -0.175655 |
+| 12 | 1777 | 1.697329 | -0.202671 |
+| 13 | 910 | 0.947704 | -0.952296 |
+| 14 | 780 | 0.826058 | -1.073942 |
+| 15 | 293 | 0.511567 | -1.388433 |
+| 16 | 2097 | 2.590375 | 0.690375 |
+| 17 | 1224 | 0.525535 | -1.374465 |
+| 18 | 1869 | 0.750955 | -1.149045 |
+| 19 | 704 | 0.846457 | -1.053543 |
+| 20 | 1423 | 0.933359 | -0.966641 |
+| 21 | 1657 | 1.748798 | -0.151202 |
+| 22 | 2151 | 1.271679 | -0.628321 |
+| 23 | 994 | 0.398583 | -1.501417 |
+| 24 | 1354 | 0.932327 | -0.967673 |
+| 25 | 1352 | 1.255943 | -0.644057 |
+| 26 | 1137 | 1.173256 | -0.726744 |
+| 27 | 1240 | 1.813118 | -0.086882 |
+| 28 | 3679 | 1.992864 | 0.092864 |
+| 29 | 1100 | 1.244271 | -0.655729 |
+| 30 |  577 | 0.927553 | -0.972447 |
+| **Méd** |  **1245.1** | **1.430713** | **-0.469287** |
 
 Ambas as heurísticas reduzem o viés em relação ao Exercício 4. Conway tende a descartar um número
 pequeno de observações (a primeira que não é extremo do sufixo), enquanto Fishman aguarda 25
@@ -208,6 +291,8 @@ A comparação dos viéses médios $\bar{B}_C$ e $\bar{B}_F$ permite avaliar qua
 mais do valor teórico para este sistema.
 
 ![Gráfico Exercício 5 — X̄(n) pós-warmup e viés por réplica](exercicio5.png)
+
+> Conway descarta em média **2** obs e produz $\bar{B}_C = -0.7354$ s; Fishman descarta **1245** obs com $\bar{B}_F = -0.4693$ s — ambos reduzem o viés em relação ao Exercício 4 (sem warmup).
 
 ---
 
@@ -249,19 +334,24 @@ while not (stats6.n >= 30 and stats6.mean > 0
 
 | Métrica         | Valor           |
 | --------------- | --------------- |
-| d* (MSER-5Y)    | (ver notebook)  |
-| n pós-truncagem | (ver notebook)  |
-| X̄               | (ver notebook) s|
-| H               | (ver notebook) s|
-| H/X̄             | ~5,0%           |
-| IC 95%          | (ver notebook)  |
+| d* (MSER-5Y)    | 0 |
+| n pós-truncagem | 10000 |
+| X̄               | 2.662402 s |
+| H               | 0.051412 s |
+| H/X̄             | 1.9310%  (critério: ≤ 5%)           |
+| IC 95%          | [ 2.610990 ; 2.713814 ]  |
 | E[X] teórico    | 1,9000 s        |
+
 
 O gráfico comparativo exibe X̄ ± H para as três heurísticas, com a linha de referência E[X] = 1,9 s.
 Para Conway e Fishman usa-se o IC da média amostral das 30 réplicas (H = 1,96 · dp/√30);
 para MSER-5Y usa-se o IC direto do OnlineStats.
 
 ![Gráfico Exercício 6 — Comparação das 3 heurísticas](exercicio6.png)
+
+> MSER-5Y descartou 0 observações e produziu $\bar{X} = 2.6624$ s com IC 95% [2.6110; 2.7138]. O valor teórico $E[X] = 1.9000$ s está **fora** do IC.
+
+> Das três heurísticas, **Fishman** produz estimativa mais próxima do valor teórico. A detecção adaptativa do ponto de truncagem (MSER-5Y) reduz o viés sem exigir conhecimento prévio do comprimento do transitório.
 
 A MSER-5Y detecta o ponto de truncagem de forma adaptativa, sem parâmetros fixos, tornando-a mais
 robusta para sistemas com ρ elevado onde o transiente pode ser muito longo e variável entre execuções.

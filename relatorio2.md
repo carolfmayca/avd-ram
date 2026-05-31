@@ -15,6 +15,7 @@ Prof. Edjair Mota, Dr.-Ing. — Instituto de Computação / UFAM
 | Taxa de serviço μ  | 10 clientes/s  |
 | Carga ρ = λ/μ      | 0,95 (95%)     |
 | Valor teórico E[X] | **1,9 s**      |
+| Semente (seed)     | 42             |
 
 A fórmula analítica para o tempo médio de espera na fila M/M/1 é:
 
@@ -249,6 +250,7 @@ for r in range(R):
 | **Méd** |   **2.2** |   **1.164648** |  **-0.735352** |
 
 **Fishman (k=25)**
+
 |   r |       d |      X̄(n)  |          B |
 | --- | ------- | ---------- | ---------- |
 | 1 | 371 | 1.083126 |  -0.816874 |
@@ -341,7 +343,6 @@ while not (stats6.n >= 30 and stats6.mean > 0
 | H/X̄             | 1.9310%  (critério: ≤ 5%)           |
 | IC 95%          | [ 2.610990 ; 2.713814 ]  |
 | E[X] teórico    | 1,9000 s        |
-
 
 O gráfico comparativo exibe X̄ ± H para as três heurísticas, com a linha de referência E[X] = 1,9 s.
 Para Conway e Fishman usa-se o IC da média amostral das 30 réplicas (H = 1,96 · dp/√30);

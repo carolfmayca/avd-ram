@@ -45,7 +45,7 @@ A simulação foi desenvolvida no notebook `mm1.ipynb`, aproveitando a infraestr
 
 ```python
 def conway_warmup(xs):
-    xs      = np.asarray(xs, dtype=float)
+    xs = np.asarray(xs, dtype=float)
     suf_max = np.maximum.accumulate(xs[::-1])[::-1]
     suf_min = np.minimum.accumulate(xs[::-1])[::-1]
     for i in range(len(xs) - 1):
@@ -61,9 +61,9 @@ Implementado com acumulação de sufixo em O(n) para eficiência.
 
 ```python
 def fishman_warmup(xs, k=25):
-    xs     = np.asarray(xs, dtype=float)
+    xs = np.asarray(xs, dtype=float)
     mu_all = xs.mean()
-    count  = 0
+    count = 0
     for i in range(1, len(xs)):
         if (xs[i - 1] - mu_all) * (xs[i] - mu_all) < 0:
             count += 1
@@ -78,27 +78,32 @@ d = índice após o k-ésimo cruzamento da média global. Valores típicos de k:
 
 ```python
 def mser5y(xs):
-    xs   = np.asarray(xs, dtype=float)
+    xs = np.asarray(xs, dtype=float)
     N, m = len(xs), 5
-    k    = N // m
+    k = N // m
+
     if k < 10:
         return None
-    Z      = xs[: k * m].reshape(k, m).mean(axis=1)
+
+    Z = xs[: k * m].reshape(k, m).mean(axis=1)
     half_k = k // 2
     mser_vals = np.empty(half_k)
+
     for d in range(half_k):
-        tail  = Z[d:]
-        kd    = len(tail)
+        tail = Z[d:]
+        kd = len(tail)
         z_bar = tail.mean()
-        s     = np.sqrt(((tail - z_bar) ** 2).mean())
+        s = np.sqrt(((tail - z_bar) ** 2).mean())
         mser_vals[d] = s / np.sqrt(kd)
+
     min_val = mser_vals.min()
+
     if np.isclose(mser_vals, min_val).sum() > 1:
         return None   # empate → truncagem não encontrada
     return int(np.argmin(mser_vals)) * m
 ```
 
-Agrupa em blocos de m=5, forma Z_j, computa MSER5(k,d) = S_Z(k,d)/√(k−d) para d ∈ [0, k/2).
+Agrupa em blocos de m=5, forma $Z_j$, computa MSER5(k,d) = $S_Z(k,d)/√(k−d)$ para d ∈ [0, k/2).
 Retorna d* × 5 (em observações originais) ou `None` em caso de empate.
 
 ---
@@ -117,19 +122,19 @@ O viés médio $\bar{B} = \frac{1}{r}\sum B_r$ indica o desvio sistemático do e
 ### Código
 
 ```python
-N4   = 1_000
+N4 = 1_000
 rows4 = []
 
-for r in range(R):          # R = 30
-    sim_r     = MM1Queue(lam=LAM_B, seed=SEED + r)
+for r in range(R):  # R = 30
+    sim_r = MM1Queue(lam=LAM_B, seed=SEED + r)
     mean_r, _ = sim_r.run_fixed(N4)
     rows4.append((r + 1, mean_r, mean_r - E_B))
 ```
 
 ### Resultados Obtidos
 
-| r | X̄(n) | B |
-| ---- | ------- | -------- |
+| r | $\bar{X}$(n) | B |
+|---|:----:|--:|
 | 1 | 1.140396 | -0.759604 |
 | 2 | 1.327325 | -0.572675 |
 | 3 | 4.591124 | 2.691124 |
@@ -139,30 +144,31 @@ for r in range(R):          # R = 30
 | 7 | 0.938187 | -0.961813 |
 | 8 | 1.768082 | -0.131918 |
 | 9 | 1.220240 | -0.679760 |
-|10 | 0.851669 | -1.048331 |
-|11 | 0.879294 | -1.020706 |
-|12 | 1.004714 | -0.895286 |
-|13 | 1.162773 | -0.737227 |
-|14 | 5.911133 | 4.011133 |
-|15 | 1.175840 | -0.724160 |
-|16 | 1.275082 | -0.624918 |
-|17 | 2.065274 | 0.165274 |
-|18 | 0.942389 | -0.957611 |
-|19 | 0.842452 | -1.057548 |
-|20 | 0.673684 | -1.226316 |
-|21 | 1.540971 | -0.359029 |
-|22 | 0.395524 | -1.504476 |
-|23 | 0.968922 | -0.931078 |
-|24 | 0.590667 | -1.309333 |
-|25 | 1.365907 | -0.534093 |
-|26 | 0.570427 | -1.329573 |
-|27 | 2.308355 | 0.408355 |
-|28 | 1.574351 | -0.325649 |
-|29 | 0.550714 | -1.349286 |
-|30 | 0.995188 | -0.904812 |
-| **Méd** |**1.376267** | **-0.523733** |
+| 10 | 0.851669 | -1.048331 |
+| 11 | 0.879294 | -1.020706 |
+| 12 | 1.004714 | -0.895286 |
+| 13 | 1.162773 | -0.737227 |
+| 14 | 5.911133 | 4.011133 |
+| 15 | 1.175840 | -0.724160 |
+| 16 | 1.275082 | -0.624918 |
+| 17 | 2.065274 | 0.165274 |
+| 18 | 0.942389 | -0.957611 |
+| 19 | 0.842452 | -1.057548 |
+| 20 | 0.673684 | -1.226316 |
+| 21 | 1.540971 | -0.359029 |
+| 22 | 0.395524 | -1.504476 |
+| 23 | 0.968922 | -0.931078 |
+| 24 | 0.590667 | -1.309333 |
+| 25 | 1.365907 | -0.534093 |
+| 26 | 0.570427 | -1.329573 |
+| 27 | 2.308355 | 0.408355 |
+| 28 | 1.574351 | -0.325649 |
+| 29 | 0.550714 | -1.349286 |
+| 30 | 0.995188 | -0.904812 |
+||||
+| **Média** | **1.376267** | **-0.523733** |
 
-**E[X] teórico = 1,900000 s**
+**E[X] teórico = 1.900000 s**
 
 Com ρ = 0,95, o transiente é muito mais longo do que em ρ = 0,9. Para n=10³, a fila ainda não atingiu o
 estado estacionário na maioria das réplicas, resultando em viés negativo significativo (o estimador
@@ -171,7 +177,7 @@ subestima E[X] porque as primeiras observações provêm de fila vazia).
 A alta dispersão entre réplicas (desvio padrão elevado) confirma que n=10³ é insuficiente para sistemas
 com carga próxima de 1.
 
-![Gráfico Exercício 4 — X̄(n) por réplica e distribuição do viés](exercicio4.png)
+![Gráfico Exercício 4 — $\bar{X}$(n) por réplica e distribuição do viés](exercicio4.png)
 
 > Com $n = 10^3$ e $\rho = 0{,}95$, o viés médio é $\bar{B} = -0.5237$ s — o estimador **subestima** $E[X] = 1.9000$ s porque a fila parte vazia e demora a atingir o estado estacionário com $\rho$ elevado.
 
@@ -213,47 +219,46 @@ for r in range(R):
 
 ### Resultados Obtidos
 
-**Conway**
+**── Conway ──────────────────────────────────────────────────**
+| r | d | $\bar{X}$(n) | B |
+|-|-|:-:|-:|
+| 1 | 3 | 1.132957 | -0.767043 |
+| 2 | 1 | 1.721387 | -0.178613 |
+| 3 | 1 | 1.117048 | -0.782952 |
+| 4 | 3 | 0.898927 | -1.001073 |
+| 5 | 1 | 0.981449 | -0.918551 |
+| 6 | 1 | 0.636380 | -1.263620 |
+| 7 | 1 | 2.367949 | 0.467949 |
+| 8 | 2 | 1.786873 | -0.113127 |
+| 9 | 1 | 1.203675 | -0.696325 |
+| 10 | 5 | 0.792950 | -1.107050 |
+| 11 | 2 | 1.725025 | -0.174975 |
+| 12 | 4 | 0.858176 | -1.041824 |
+| 13 | 1 | 1.133285 | -0.766715 |
+| 14 | 3 | 1.047966 | -0.852034 |
+| 15 | 1 | 0.571958 | -1.328042 |
+| 16 | 1 | 1.077831 | -0.822169 |
+| 17 | 3 | 3.123846 | 1.223846 |
+| 18 | 4 | 1.546074 | -0.353926 |
+| 19 | 1 | 0.686017 | -1.213983 |
+| 20 | 4 | 0.422068 | -1.477932 |
+| 21 | 1 | 0.668883 | -1.231117 |
+| 22 | 1 | 0.730138 | -1.169862 |
+| 23 | 1 | 1.015729 | -0.884271 |
+| 24 | 3 | 0.593269 | -1.306731 |
+| 25 | 1 | 0.870593 | -1.029407 |
+| 26 | 2 | 0.763757 | -1.136243 |
+| 27 | 2 | 2.180419 | 0.280419 |
+| 28 | 6 | 0.822020 | -1.077980 |
+| 29 | 3 | 1.325187 | -0.574813 |
+| 30 | 4 | 1.137590 | -0.762410 |
+|
+| **Média** | **2.2** | **1.164648** | **-0.735352** |
 
-| r |  d | X̄(n)  |  B  |
-| --- | ------- | ---------- | ---------- |
-| 1 |  3 | 1.132957 |  -0.767043 |
-| 2 |  1 | 1.721387 |  -0.178613 |
-| 3 |  1 | 1.117048 |  -0.782952 |
-| 4 |  3 | 0.898927 |  -1.001073 |
-| 5 |  1 | 0.981449 |  -0.918551 |
-| 6 |  1 | 0.636380 |  -1.263620 |
-| 7 |  1 | 2.367949 | 0.467949 |
-| 8 |  2 | 1.786873 |  -0.113127 |
-| 9 |  1 | 1.203675 |  -0.696325 |
-|  10 |  5 | 0.792950 |  -1.107050 |
-|  11 |  2 | 1.725025 |  -0.174975 |
-|  12 |  4 | 0.858176 |  -1.041824 |
-|  13 |  1 | 1.133285 |  -0.766715 |
-|  14 |  3 | 1.047966 |  -0.852034 |
-|  15 |  1 | 0.571958 |  -1.328042 |
-|  16 |  1 | 1.077831 |  -0.822169 |
-|  17 |  3 | 3.123846 | 1.223846 |
-|  18 |  4 | 1.546074 |  -0.353926 |
-|  19 |  1 | 0.686017 |  -1.213983 |
-|  20 |  4 | 0.422068 |  -1.477932 |
-|  21 |  1 | 0.668883 |  -1.231117 |
-|  22 |  1 | 0.730138 |  -1.169862 |
-|  23 |  1 | 1.015729 |  -0.884271 |
-|  24 |  3 | 0.593269 |  -1.306731 |
-|  25 |  1 | 0.870593 |  -1.029407 |
-|  26 |  2 | 0.763757 |  -1.136243 |
-|  27 |  2 | 2.180419 | 0.280419 |
-|  28 |  6 | 0.822020 |  -1.077980 |
-|  29 |  3 | 1.325187 |  -0.574813 |
-|  30 |  4 | 1.137590 |  -0.762410 |
-| **Méd** |   **2.2** |   **1.164648** |  **-0.735352** |
-
-**Fishman (k=25)**
-
-|   r |       d |      X̄(n)  |          B |
-| --- | ------- | ---------- | ---------- |
-| 1 | 371 | 1.083126 |  -0.816874 |
+**── Fishman (k=25) ──────────────────────────────────────────**
+| r | d | $\bar{X}$(n) | B |
+|-|-|:-:|-:|
+| 1 | 371 | 1.083126 | -0.816874 |
 | 2 | 1224 | 1.418964 | -0.481036 |
 | 3 | 1522 | 0.603410 | -1.296590 |
 | 4 | 1233 | 1.678769 | -0.221231 |
@@ -282,8 +287,9 @@ for r in range(R):
 | 27 | 1240 | 1.813118 | -0.086882 |
 | 28 | 3679 | 1.992864 | 0.092864 |
 | 29 | 1100 | 1.244271 | -0.655729 |
-| 30 |  577 | 0.927553 | -0.972447 |
-| **Méd** |  **1245.1** | **1.430713** | **-0.469287** |
+| 30 | 577 | 0.927553 | -0.972447 |
+|||||
+| **Média** | **1245.1** | **1.430713** | **-0.469287** |
 
 Ambas as heurísticas reduzem o viés em relação ao Exercício 4. Conway tende a descartar um número
 pequeno de observações (a primeira que não é extremo do sufixo), enquanto Fishman aguarda 25
@@ -292,7 +298,7 @@ cruzamentos da média global — produzindo warmups tipicamente maiores para ρ 
 A comparação dos viéses médios $\bar{B}_C$ e $\bar{B}_F$ permite avaliar qual heurística se aproxima
 mais do valor teórico para este sistema.
 
-![Gráfico Exercício 5 — X̄(n) pós-warmup e viés por réplica](exercicio5.png)
+![Gráfico Exercício 5 — $\bar{X}$(n) pós-warmup e viés por réplica](exercicio5.png)
 
 > Conway descarta em média **2** obs e produz $\bar{B}_C = -0.7354$ s; Fishman descarta **1245** obs com $\bar{B}_F = -0.4693$ s — ambos reduzem o viés em relação ao Exercício 4 (sem warmup).
 
@@ -303,7 +309,7 @@ mais do valor teórico para este sistema.
 ### Descrição
 
 Executa uma simulação de horizonte infinito com λ=9,5, eliminando o transiente pela heurística MSER-5Y.
-A regra de parada é a precisão relativa H/X̄ ≤ 5%.
+A regra de parada é a precisão relativa H/$\bar{X}$ ≤ 5%.
 
 A heurística minimiza:
 
@@ -316,7 +322,7 @@ com $Z_j = \frac{1}{5}\sum_{i=1}^{5} x_{5(j-1)+i}$ (blocos de tamanho m=5) e d r
 ```python
 sim6 = MM1Queue(lam=LAM_B, seed=SEED)
 sim6._reset()
-buf  = sim6.generate(INIT_N6)   # 10 000 obs iniciais
+buf = sim6.generate(INIT_N6)  # 10 000 obs iniciais
 
 d_mser = None
 while d_mser is None:
@@ -327,24 +333,29 @@ while d_mser is None:
 stats6 = OnlineStats()
 stats6.add_batch(buf[d_mser:])
 
-while not (stats6.n >= 30 and stats6.mean > 0
-           and stats6.half_width / stats6.mean <= 0.05):
+while not (
+    stats6.n >= 30
+    and stats6.mean > 0
+    and stats6.half_width / stats6.mean <= 0.05
+):
     stats6.add_batch(sim6.generate(1_000))
 ```
 
 ### Resultados Obtidos
 
-| Métrica         | Valor           |
-| --------------- | --------------- |
-| d* (MSER-5Y)    | 0 |
-| n pós-truncagem | 10000 |
-| X̄               | 2.662402 s |
-| H               | 0.051412 s |
-| H/X̄             | 1.9310%  (critério: ≤ 5%)           |
-| IC 95%          | [ 2.610990 ; 2.713814 ]  |
-| E[X] teórico    | 1,9000 s        |
+| Métrica | Valor |
+|-|-|
+| n pós-truncagem | 10,000 |
+| $\bar{X}$ | 2.662402 s |
+| H | 0.051412 s |
+| H / $\bar{X}$ | 1.9310% |
+| IC 95% | [ 2.610990 ; 2.713814 ] |
+| E[X] teórico | 1.900000 s |
+| E[X] dentro IC? | Não |
 
-O gráfico comparativo exibe X̄ ± H para as três heurísticas, com a linha de referência E[X] = 1,9 s.
+MSER-5Y: d* = 0 obs descartadas  (0.0% do total gerado até agora)
+
+O gráfico comparativo exibe $\bar{X}$ ± H para as três heurísticas, com a linha de referência E[X] = 1,9 s.
 Para Conway e Fishman usa-se o IC da média amostral das 30 réplicas (H = 1,96 · dp/√30);
 para MSER-5Y usa-se o IC direto do OnlineStats.
 

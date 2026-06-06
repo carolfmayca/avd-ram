@@ -164,7 +164,7 @@ O gráfico abaixo evidencia a convergência de $\bar{X}(n)$ em direção à linh
 
 Como esperado, para n = 10³ o erro absoluto é de ~0,15 s (16,7% do valor teórico) e o IC é largo (largura ≈ 0,10 s). Para n = 10⁹ o erro reduz para ~0,00008 s e o IC torna-se extremamente estreito (largura ≈ 0,00012 s), demonstrando a convergência da estimativa ao valor teórico.
 
-![Gráfico Exercício 1 — Convergência de X̄(n) para E[X]](exercicio1.png)
+![Gráfico Exercício 1 — Convergência de X̄(n) para E[X]](imgs/exercicio1.png)
 
 ---
 
@@ -213,9 +213,9 @@ for d in ds:
 
 Para d = 1,0, 0,5 e 0,1 a condição H ≤ d foi satisfeita com apenas 30 clientes — o critério é muito permissivo para esses valores de d dado que a variância do sistema é baixa. Para d = 0,05 foram necessários 225 clientes para atingir H ≤ 0,05. Note que as médias obtidas estão bem abaixo do valor teórico (0,9 s), indicando que com amostras tão pequenas a estimativa ainda está longe do estado estacionário — o critério de Chow-Robbins garante a precisão do IC, mas não a proximidade ao valor teórico quando n é muito pequeno.
 
-![Gráfico Exercício 2 — X̄ vs precisão d (Chow-Robbins)](exercicio2.png)
+![Gráfico Exercício 2 — X̄ vs precisão d (Chow-Robbins)](imgs/exercicio2.png)
 
-![Gráfico Exercício 2 — Tamanho amostral necessário vs d](exercicio2_b.png)
+![Gráfico Exercício 2 — Tamanho amostral necessário vs d](imgs/exercicio2_b.png)
 
 ---
 
@@ -244,9 +244,9 @@ elapsed = time.perf_counter() - t0
 lo, hi = mean - H, mean + H
 
 print(f"  n final    = {n:,}")
-print(f"  X̄(n)      = {mean:.6f} s")
+print(f"  X̄(n)       = {mean:.6f} s")
 print(f"  H          = {H:.6f} s")
-print(f"  H / X̄     = {H/mean:.4%}   (critério: ≤ 5 %)")
+print(f"  H / X̄      = {H/mean:.4%}   (critério: ≤ 5 %)")
 print(f"  IC 95%     = [ {lo:.6f} ,  {hi:.6f} ]")
 print(f"  E[X] teór. = {E:.6f} s")
 print(f"  tempo      = {elapsed:.2f} s")
@@ -266,7 +266,7 @@ A regra parou produzindo X̄ = 0,496692 s com H/X̄ = **~5,0%** — satisfazendo
 
 Apesar do critério H/X̄ estar satisfeito, o valor teórico E[X] = 0,9 s está **fora do IC obtido** [ 0,47 ; 0,52 ], confirmando que a estimativa ainda não atingiu o estado estacionário. Isso evidencia uma limitação importante do critério relativo: ele garante que o IC é estreito _em relação à média corrente_, mas não que essa média já representa o estado estacionário do sistema. Para filas de alta carga (ρ = 0,9), um `n_min` maior seria necessário para evitar parada prematura no transitório.
 
-![Gráfico Exercício 3 — Estimativa com IC relativo H/X̄ ≤ 5%](exercicio3.png)
+![Gráfico Exercício 3 — Estimativa com IC relativo H/X̄ ≤ 5%](imgs/exercicio3.png)
 
 ---
 

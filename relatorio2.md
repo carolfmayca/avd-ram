@@ -41,7 +41,7 @@ A simulação foi desenvolvida no notebook `mm1.ipynb`, aproveitando a infraestr
 
 ### Heurísticas implementadas
 
-**Conway**
+#### **Conway**
 
 ```python
 def conway_warmup(xs):
@@ -57,7 +57,7 @@ def conway_warmup(xs):
 d = primeiro índice i tal que x[i] não é o máximo nem o mínimo de x[i:].
 Implementado com acumulação de sufixo em O(n) para eficiência.
 
-**Fishman (k=25)**
+#### **Fishman (k=25)**
 
 ```python
 def fishman_warmup(xs, k=25):
@@ -74,7 +74,7 @@ def fishman_warmup(xs, k=25):
 
 d = índice após o k-ésimo cruzamento da média global. Valores típicos de k: 7 e 25 (usado k=25).
 
-**MSER-5Y**
+#### **MSER-5Y**
 
 ```python
 def mser5y(xs):
@@ -134,7 +134,7 @@ for r in range(R):  # R = 30
 ### Resultados Obtidos
 
 | r | $\bar{X}$(n) | B |
-|---|:----:|--:|
+| --- | :----: | --: |
 | 1 | 1.140396 | -0.759604 |
 | 2 | 1.327325 | -0.572675 |
 | 3 | 4.591124 | 2.691124 |
@@ -176,7 +176,7 @@ subestima E[X] porque as primeiras observações provêm de fila vazia).
 A alta dispersão entre réplicas (desvio padrão elevado) confirma que n=10³ é insuficiente para sistemas
 com carga próxima de 1.
 
-![Gráfico Exercício 4 — $\bar{X}$(n) por réplica e distribuição do viés](exercicio4.png)
+![Gráfico Exercício 4 — $\bar{X}$(n) por réplica e distribuição do viés](imgs/exercicio4.png)
 
 > Com $n = 10^3$ e $\rho = 0{,}95$, o viés médio é $\bar{B} = -0.5237$ s — o estimador **subestima** $E[X] = 1.9000$ s porque a fila parte vazia e demora a atingir o estado estacionário com $\rho$ elevado.
 
@@ -218,9 +218,10 @@ for r in range(R):
 
 ### Resultados Obtidos
 
-**── Conway ──────────────────────────────────────────────────**
+#### ── Conway ──────────────────────────────────────────────────
+
 | r | d | $\bar{X}$(n) | B |
-|-|-|:-:|-:|
+| - | - | :-: | -: |
 | 1 | 3 | 1.132957 | -0.767043 |
 | 2 | 1 | 1.721387 | -0.178613 |
 | 3 | 1 | 1.117048 | -0.782952 |
@@ -253,9 +254,10 @@ for r in range(R):
 | 30 | 4 | 1.137590 | -0.762410 |
 | **Média** | **2.2** | **1.164648** | **-0.735352** |
 
-**── Fishman (k=25) ──────────────────────────────────────────**
+#### ── Fishman (k=25) ──────────────────────────────────────────
+
 | r | d | $\bar{X}$(n) | B |
-|-|-|:-:|-:|
+| - | - | :-: | -: |
 | 1 | 371 | 1.083126 | -0.816874 |
 | 2 | 1224 | 1.418964 | -0.481036 |
 | 3 | 1522 | 0.603410 | -1.296590 |
@@ -295,7 +297,7 @@ cruzamentos da média global — produzindo warmups tipicamente maiores para ρ 
 A comparação dos viéses médios $\bar{B}_C$ e $\bar{B}_F$ permite avaliar qual heurística se aproxima
 mais do valor teórico para este sistema.
 
-![Gráfico Exercício 5 — $\bar{X}$(n) pós-warmup e viés por réplica](exercicio5.png)
+![Gráfico Exercício 5 — $\bar{X}$(n) pós-warmup e viés por réplica](imgs/exercicio5.png)
 
 > Conway descarta em média **2** obs e produz $\bar{B}_C = -0.7354$ s; Fishman descarta **1245** obs com $\bar{B}_F = -0.4693$ s — ambos reduzem o viés em relação ao Exercício 4 (sem warmup).
 
@@ -341,7 +343,7 @@ while not (
 ### Resultados Obtidos
 
 | Métrica | Valor |
-|-|-|
+| - | - |
 | n pós-truncagem | 10,000 |
 | $\bar{X}$ | 2.662402 s |
 | H | 0.051412 s |
@@ -356,7 +358,7 @@ O gráfico comparativo exibe $\bar{X}$ ± H para as três heurísticas, com a li
 Para Conway e Fishman usa-se o IC da média amostral das 30 réplicas (H = 1,96 · dp/√30);
 para MSER-5Y usa-se o IC direto do OnlineStats.
 
-![Gráfico Exercício 6 — Comparação das 3 heurísticas](exercicio6.png)
+![Gráfico Exercício 6 — Comparação das 3 heurísticas](imgs/exercicio6.png)
 
 > MSER-5Y descartou 0 observações e produziu $\bar{X} = 2.6624$ s com IC 95% [2.6110; 2.7138]. O valor teórico $E[X] = 1.9000$ s está **fora** do IC.
 

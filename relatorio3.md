@@ -23,9 +23,10 @@ A fórmula analítica do tempo médio de espera em fila M/M/1:
 $$E[X] = \frac{\rho}{\mu(1 - \rho)}, \quad \rho = \frac{\lambda}{\mu}$$
 
 Todos os experimentos utilizam:
+
 - **MSER-5Y** para detecção e eliminação do transiente
 - **Critério de parada:** H/X̄ ≤ 5 % (precisão relativa)
-- **IC:** 95 % (z₀,₉₇₅ = 1,96)
+- **IC:** 95 % — quantil t-Student com graus de liberdade dependentes do método
 - **Seed:** 42
 
 ---
@@ -45,14 +46,26 @@ Cada método é implementado como função independente que reutiliza a infraest
 sim = MM1Queue(lam=lam, mu=mu, seed=seed)
 sim._reset()
 
-buf = sim.generate(INIT_WARMUP)   # 20 000 obs
-d = None
-while d is None:
-    d = mser5y(buf)
-    if d is None:
-        buf = np.concatenate([buf, sim.generate(EXTRA_WARMUP)])
+buf = sim.generate(20_000)   # observações iniciais
+d = mser5y(buf)              # MSER-5Y: retorna argmin sem fallback para zero
+buf_steady = buf[d:]         # descarta transiente
+```
 
-buf_steady = buf[d:]              # descarta transiente
+### Estrutura comum — independência dos lotes (Razão de Von Neumann)
+
+Os métodos NBM, SBM e OBM utilizam a **Razão de Von Neumann (RVN)** para verificar se as médias de lote são suficientemente independentes antes de construir o IC:
+
+$$\text{RVN} = \frac{\sum_{j=1}^{B-1}(R_{j+1} - R_j)^2}{\sum_{j=1}^{B}(R_j - \bar{R})^2}$$
+
+onde $R_j$ é o posto (rank) de $\bar{Y}_j$. Valores próximos de 2 indicam independência; valores abaixo de 1,44 (limiar crítico) indicam autocorrelação residual — neste caso, M é aumentado em 50 e o processo recomeça.
+
+```python
+def calcular_rvn(medias):
+    ranks = sp_stats.rankdata(medias)
+    media_rank = (len(medias) + 1) / 2.0
+    num = np.sum(np.diff(ranks) ** 2)
+    den = np.sum((ranks - media_rank) ** 2)
+    return num / den if den > 0 else 0.0
 ```
 
 ---
@@ -61,57 +74,57 @@ buf_steady = buf[d:]              # descarta transiente
 
 ### Descrição
 
-A série pós-transiente é dividida em **B lotes não sobrepostos** de tamanho m. A média de cada lote $\bar{Y}_j$ é calculada e a variância é estimada sobre as B médias:
+A série pós-transiente é dividida em **B lotes não sobrepostos** de tamanho M. A média de cada lote $\bar{Y}_j$ é calculada e o IC é construído via t-Student com B−1 graus de liberdade:
 
-$$\hat{\sigma}^2_{\text{NBM}} = \frac{1}{B-1}\sum_{j=1}^{B}(\bar{Y}_j - \bar{X})^2, \qquad H = z_{0{,}975}\,\frac{\hat{\sigma}_{\text{NBM}}}{\sqrt{B}}$$
+$$\hat{\sigma}^2_{\text{NBM}} = \frac{1}{B-1}\sum_{j=1}^{B}(\bar{Y}_j - \bar{X})^2, \qquad H = t_{B-1,\,0{,}975}\,\frac{\hat{\sigma}_{\text{NBM}}}{\sqrt{B}}$$
 
-Inicia-se com B = 20 lotes e incrementa-se de 20 em 20 até H/X̄ ≤ 5 %.
+A independência das médias é verificada por RVN (limiar 1,44) antes do cálculo do IC. Inicia-se com B = 20 e M = 100; quando RVN falha, M incrementa 50 (lotes maiores reduzem autocorrelação inter-lote); quando H/X̄ > 5 %, B incrementa 5 (mais lotes reduzem a variância do estimador).
 
 ### Código
 
 ```python
-# ── Passo 2: NBM com parada por precisão relativa ────────────────────────────
-all_batch_means = []
-n_target = B  # começa com B=20
+# ── Passo 2: NBM com RVN e parada por precisão relativa ─────────────────────
+B = 20
+M = 100
+RVN_CRITICO = 1.44
 
 while True:
-    batches_needed = n_target - len(all_batch_means)
-    n_to_gen = batches_needed * BATCH_SIZE_GEN - len(buf_steady)
-    if n_to_gen > 0:
-        buf_steady = np.concatenate([buf_steady, sim.generate(n_to_gen)])
+    N = B * M
+    while len(buf_steady) < N:
+        buf_steady = np.concatenate([buf_steady, sim.generate(5_000)])
 
-    for i in range(len(all_batch_means), n_target):
-        start = i * BATCH_SIZE_GEN
-        end   = min(start + BATCH_SIZE_GEN, len(buf_steady))
-        if end > start:
-            all_batch_means.append(float(buf_steady[start:end].mean()))
+    amostra = buf_steady[:N]
+    bm = amostra.reshape(B, M).mean(axis=1)
 
-    batch_means_arr = np.array(all_batch_means)
-    X_bar = batch_means_arr.mean()
-    H = Z95 * np.sqrt(np.var(batch_means_arr, ddof=1) / len(all_batch_means))
+    if calcular_rvn(bm) <= RVN_CRITICO:
+        M += 50   # lotes pequenos → autocorrelação inter-lote
+        continue
+
+    X_bar = bm.mean()
+    H = sp_stats.t.ppf(0.975, B - 1) * sp_stats.sem(bm)
 
     if X_bar > 0 and H / X_bar <= epsilon:
         break
 
-    n_target += B
+    B += 5        # precisão insuficiente → mais lotes
 ```
 
 ### Resultados Obtidos
 
-| Cenário | ρ    | X̄(n)    | H        | IC (95 %)                  | N           | d | E[X]∈IC |
-| ------- | ---- | -------- | -------- | -------------------------- | ----------- | - | ------- |
-| I       | 0,70 | 0,233068 | 0,010163 | [0,222905 ; 0,243231]      | 200 000     | 0 | ✓       |
-| II      | 0,80 | 0,392189 | 0,018495 | [0,373694 ; 0,410683]      | 200 295     | 295 | ✓     |
-| III     | 0,90 | 0,892682 | 0,039986 | [0,852696 ; 0,932669]      | 700 000     | 0 | ✓       |
-| IV      | 0,95 | 1,854680 | 0,090263 | [1,764417 ; 1,944944]      | 1 700 000   | 0 | ✓       |
+| Cenário | ρ    | X̄(n)    | H        | IC (95 %)                  | N           | d   | E[X]∈IC |
+| ------- | ---- | -------- | -------- | -------------------------- | ----------- | --- | ------- |
+| I       | 0,70 | 0,228615 | 0,011394 | [0,217221 ; 0,240009]      | 77 500      | 0   | ✓       |
+| II      | 0,80 | 0,409525 | 0,020344 | [0,389181 ; 0,429870]      | 122 295     | 295 | ✓       |
+| III     | 0,90 | 0,906059 | 0,045237 | [0,860822 ; 0,951297]      | 474 000     | 0   | ✓       |
+| IV      | 0,95 | 1,931552 | 0,096557 | [1,834995 ; 2,028110]      | 1 250 000   | 0   | ✓       |
 
 **E[X] teórico:** I = 0,2333 s · II = 0,4000 s · III = 0,9000 s · IV = 1,9000 s
 
-O tamanho amostral cresce acentuadamente com ρ: de N = 200 000 (ρ=0,70) a N = 1 700 000 (ρ=0,95), refletindo que séries mais autocorrelacionadas exigem lotes maiores para satisfazer a precisão relativa.
+Todos os 4 ICs contêm E[X] teórico. O tamanho amostral cresce acentuadamente com ρ — de N = 77 500 (ρ=0,70) a N = 1 250 000 (ρ=0,95) — refletindo que séries mais autocorrelacionadas exigem M maior (via RVN) e mais lotes B para satisfazer H/X̄ ≤ 5 %.
 
 ![Gráfico Exercício 7 — NBM: estimativas e IC 95% por cenário](imgs/exercicio7.png)
 
-> **NBM** (B=20, ε=5%): menor erro relativo no Cenário I (0,11%). Tamanho amostral cresce com ρ: de N=200 000 (ρ=0,70) a N=1 700 000 (ρ=0,95).
+> **NBM** (B=20, ε=5%): todos os 4 ICs cobrem E[X]. N cresce de 77 500 (ρ=0,70) a 1 250 000 (ρ=0,95).
 
 ---
 
@@ -119,69 +132,75 @@ O tamanho amostral cresce acentuadamente com ρ: de N = 200 000 (ρ=0,70) a N = 
 
 ### Descrição
 
-Variante do NBM que insere **S observações de espaçamento** entre lotes consecutivos, reduzindo a correlação entre médias de lote. A variância é estimada da mesma forma que no NBM:
+Variante do NBM que descarta as **últimas S observações de cada bloco de M** para reduzir a correlação entre médias de lotes consecutivos. Para cada grupo de M observações, apenas as primeiras M−S contribuem para a média do lote:
 
-$$H = z_{0{,}975}\,\frac{\hat{\sigma}_{\text{SBM}}}{\sqrt{M}}, \qquad \hat{\sigma}^2_{\text{SBM}} = \frac{1}{M-1}\sum_{j=1}^{M}(\bar{Y}_j - \bar{X})^2$$
+$$\bar{Y}_j^{(S)} = \frac{1}{M-S}\sum_{k=(j-1)M+1}^{jM-S} X_k, \qquad H = t_{B-1,\,0{,}975}\,\frac{\hat{\sigma}_{\text{SBM}}}{\sqrt{B}}$$
 
-Testado com dois valores de S:
-- **S = 1** (fixo): espaçamento mínimo, idêntico ao NBM com lag=1
-- **S = ⌊M/10⌋** (adaptativo): espaçamento cresce com M
+A independência é verificada por RVN antes do cálculo do IC. Testado com dois valores de S:
+
+- **S = 1** (fixo): cada lote usa M−1 de cada grupo de M observações
+- **S = ⌊M/10⌋** (adaptativo): espaçamento proporcional ao tamanho do lote
 
 ### Código
 
 ```python
-# ── Passo 2: SBM com parada por precisão relativa ────────────────────────────
-M = 10
+# ── Passo 2: SBM com RVN e parada por precisão relativa ─────────────────────
+B = 20
+M = 100
+RVN_CRITICO = 1.44
+
 while True:
     S = 1 if S_mode == 'fixed' else max(1, M // 10)
-
-    N_needed = M * S + S - 1
-    while len(buf_steady) < N_needed:
+    N = B * M
+    while len(buf_steady) < N:
         buf_steady = np.concatenate([buf_steady, sim.generate(5_000)])
 
-    batch_means = [float(buf_steady[j:j+S].mean()) for j in range(M)
-                   if j + S <= len(buf_steady)]
+    amostra = buf_steady[:N]
+    # Cada bloco de M obs: usa as M-S primeiras, descarta as últimas S
+    bm = amostra.reshape(B, M)[:, :-S].mean(axis=1)
 
-    X_bar = np.mean(batch_means)
-    # Ajuste para autocorrelação no lag 1
-    rho_lag1 = np.corrcoef(batch_means[:-1], batch_means[1:])[0, 1]
-    correction_factor = max(1.0, 1 + 2 * rho_lag1)
-    H = Z95 * np.sqrt(np.var(batch_means, ddof=1) * correction_factor / len(batch_means))
+    if calcular_rvn(bm) <= RVN_CRITICO:
+        M += 50
+        continue
 
-    if X_bar > 0 and H / X_bar <= 0.05:
+    X_bar = bm.mean()
+    H = sp_stats.t.ppf(0.975, B - 1) * sp_stats.sem(bm)
+
+    if X_bar > 0 and H / X_bar <= epsilon:
         break
-    M += 10
+
+    B += 5
 ```
 
 ### Resultados Obtidos
 
 #### S = 1 (fixo)
 
-| Cenário | ρ    | X̄(n)    | H        | IC (95 %)                  | N      | d   | E[X]∈IC |
-| ------- | ---- | -------- | -------- | -------------------------- | ------ | --- | ------- |
-| I       | 0,70 | 0,206623 | 0,013923 | [0,192701 ; 0,220546]      | 20 000 | 0   | ✗       |
-| II      | 0,80 | 0,393451 | 0,020650 | [0,372801 ; 0,414101]      | 20 000 | 295 | ✓       |
-| III     | 0,90 | 0,658331 | 0,032851 | [0,625479 ; 0,691182]      | 20 000 | 0   | ✗       |
-| IV      | 0,95 | 1,863257 | 0,091878 | [1,771379 ; 1,955135]      | 20 000 | 0   | ✓       |
+| Cenário | ρ    | X̄(n)    | H        | IC (95 %)                  | N           | d   | E[X]∈IC |
+| ------- | ---- | -------- | -------- | -------------------------- | ----------- | --- | ------- |
+| I       | 0,70 | 0,228640 | 0,011393 | [0,217247 ; 0,240032]      | 78 000      | 0   | ✓       |
+| II      | 0,80 | 0,409578 | 0,020385 | [0,389193 ; 0,429962]      | 122 295     | 295 | ✓       |
+| III     | 0,90 | 0,906053 | 0,045261 | [0,860791 ; 0,951314]      | 474 000     | 0   | ✓       |
+| IV      | 0,95 | 1,931586 | 0,096577 | [1,835009 ; 2,028163]      | 1 250 000   | 0   | ✓       |
 
 #### S = ⌊M/10⌋ (adaptativo)
 
-| Cenário | ρ    | X̄(n)    | H        | IC (95 %)                  | N       | d     | E[X]∈IC |
-| ------- | ---- | -------- | -------- | -------------------------- | ------- | ----- | ------- |
-| I       | 0,70 | 0,209562 | 0,010459 | [0,199103 ; 0,220021]      | 145 000 | 1 395 | ✗       |
-| II      | 0,80 | 0,475684 | 0,023624 | [0,452060 ; 0,499308]      | 450 000 | 0     | ✗       |
-| III     | 0,90 | 0,843005 | 0,041991 | [0,801014 ; 0,884996]      | 350 000 | 0     | ✗       |
-| IV      | 0,95 | 3,787387 | 0,079252 | [3,708135 ; 3,866639]      | 20 000  | 9 065 | ✗       |
+| Cenário | ρ    | X̄(n)    | H        | IC (95 %)                  | N         | d     | E[X]∈IC |
+| ------- | ---- | -------- | -------- | -------------------------- | --------- | ----- | ------- |
+| I       | 0,70 | 0,244902 | 0,012242 | [0,232660 ; 0,257144]      | 89 395    | 1 395 | ✓       |
+| II      | 0,80 | 0,406658 | 0,020302 | [0,386356 ; 0,426960]      | 150 750   | 0     | ✓       |
+| III     | 0,90 | 0,918339 | 0,045876 | [0,872463 ; 0,964215]      | 333 750   | 0     | ✓       |
+| IV      | 0,95 | 1,870786 | 0,093394 | [1,777392 ; 1,964180]      | 884 565   | 9 065 | ✓       |
 
-O SBM com S = 1 satisfaz a precisão relativa H/X̄ ≤ 5 % com apenas N = 20 000 observações (limite da proteção contra loop infinito), mas 2 dos 4 ICs não contêm E[X] teórico — evidenciando que a amostra é insuficiente para os cenários de baixa carga.
+**E[X] teórico:** I = 0,2333 s · II = 0,4000 s · III = 0,9000 s · IV = 1,9000 s
 
-O SBM adaptativo (S = M/10) apresenta resultados problemáticos, especialmente no Cenário IV onde X̄ = 3,79 s está muito afastado de E[X] = 1,9 s. Isso indica que o espaçamento crescente, ao descartar muitas observações entre lotes, reduz excessivamente o tamanho efetivo da amostra e pode capturar apenas a fase de transiente inicial quando d é elevado.
+Com S=1, o efeito é mínimo (descarta apenas 1/M das observações) — os resultados são praticamente idênticos ao NBM. Com S=M/10, descarta-se 10% das observações por lote mas o RVN tende a ser satisfeito com M menor, pois a zona de separação reduz mais eficientemente a correlação inter-lote; todos os 4 ICs cobrem E[X] com menor N para o Cenário IV (884 565 vs 1 250 000 no NBM).
 
 ![Gráfico Exercício 8 — SBM S=1: estimativas e IC 95% por cenário](imgs/exercicio8_s1.png)
 
 ![Gráfico Exercício 8 — SBM S=M/10: estimativas e IC 95% por cenário](imgs/exercicio8_sM10.png)
 
-> **SBM**: espaçamento adaptativo (S=M/10) usa batches maiores mas exige mais observações. No Cenário IV: N=20 000 (S=1) vs N=20 000 (S=M/10).
+> **SBM** (ε=5%): S=1 idêntico ao NBM. S=M/10 mais eficiente no Cenário IV: N=884 565 vs N=1 250 000 (NBM).
 
 ---
 
@@ -189,40 +208,53 @@ O SBM adaptativo (S = M/10) apresenta resultados problemáticos, especialmente n
 
 ### Descrição
 
-Generalização do NBM em que lotes de tamanho **m = 100** se sobrepõem com passo **lag**. O grau de sobreposição determina o lag e, consequentemente, a correlação entre lotes consecutivos:
+Generalização do NBM em que lotes de tamanho **M** se sobrepõem com passo `lag`. O tamanho da janela M é calibrado via RVN em lotes **não sobrepostos** — garantindo independência antes de aplicar o overlap. O grau de sobreposição determina o lag (proporcional a M calibrado):
 
 | Sobreposição | lag |
 |:---:|:---:|
 | 100 % | 1 |
-| 50 % | m/2 = 50 |
-| 25 % | 3m/4 = 75 |
+| 50 % | M/2 |
+| 25 % | 3M/4 |
+
+Com B' lotes sobrepostos, a variância usa t-Student com graus de liberdade ajustados:
+
+$$H = t_{gl,\,0{,}975}\sqrt{\frac{\hat{\sigma}^2_{\text{OBM}}}{B'}}, \qquad gl = \left\lfloor 1{,}5\,(B' - 1) \right\rfloor$$
 
 ### Código
 
 ```python
-# ── Passo 2: Define lag baseado no overlap ────────────────────────────────────
-S = 100  # tamanho fixo do batch
-if   overlap_pct == 100: lag = 1
-elif overlap_pct ==  50: lag = S // 2
-elif overlap_pct ==  25: lag = (3 * S) // 4
+# ── Passo 2: OBM com RVN e parada por precisão relativa ─────────────────────
+B = 20
+M = 100   # tamanho de janela; cresce quando RVN falha ou precisão insuficiente
+RVN_CRITICO = 1.44
 
-M = 10
 while True:
-    N_needed = (M - 1) * lag + S
-    while len(buf_steady) < N_needed:
+    N = B * M
+    while len(buf_steady) < N:
         buf_steady = np.concatenate([buf_steady, sim.generate(5_000)])
 
-    batch_means = [float(buf_steady[j*lag : j*lag+S].mean())
-                   for j in range(M) if j*lag + S <= len(buf_steady)]
+    amostra = buf_steady[:N]
 
-    X_bar = np.mean(batch_means)
-    rho_lag1 = np.corrcoef(batch_means[:-1], batch_means[1:])[0, 1]
-    correction_factor = max(1.0, 1 + 2 * rho_lag1)
-    H = Z95 * np.sqrt(np.var(batch_means, ddof=1) * correction_factor / len(batch_means))
+    # RVN em lotes não sobrepostos para calibrar M
+    medias_nbm = amostra.reshape(B, M).mean(axis=1)
+    if calcular_rvn(medias_nbm) <= RVN_CRITICO:
+        M += 50
+        continue
 
-    if X_bar > 0 and H / X_bar <= 0.05:
+    overlap = overlap_pct / 100.0
+    passo = max(1, int(M * (1.0 - overlap))) if overlap < 1.0 else 1
+    medias_obm = [amostra[i:i+M].mean() for i in range(0, N - M + 1, passo)]
+    B_linha = len(medias_obm)
+
+    X_bar = np.mean(medias_obm)
+    var = np.var(medias_obm, ddof=1)
+    gl = max(1, int(1.5 * (B_linha - 1)))
+    H = sp_stats.t.ppf(0.975, gl) * np.sqrt(var / B_linha)
+
+    if X_bar > 0 and H / X_bar <= epsilon:
         break
-    M += 10
+
+    M += 50   # precisão insuficiente → janela maior
 ```
 
 ### Resultados Obtidos
@@ -231,30 +263,32 @@ while True:
 
 | Cenário | ρ    | X̄(n)    | H        | IC (95 %)                  | N      | d     | E[X]∈IC |
 | ------- | ---- | -------- | -------- | -------------------------- | ------ | ----- | ------- |
-| I       | 0,70 | 0,076815 | 0,003382 | [0,073433 ; 0,080197]      | 20 000 | 1 395 | ✗       |
-| II      | 0,80 | 0,114458 | 0,005487 | [0,108971 ; 0,119945]      | 20 000 | 0     | ✗       |
-| III     | 0,90 | 0,354187 | 0,009132 | [0,345055 ; 0,363319]      | 20 000 | 0     | ✗       |
-| IV      | 0,95 | 3,554445 | 0,033859 | [3,520585 ; 3,588304]      | 20 000 | 9 065 | ✗       |
+| I       | 0,70 | 0,208255 | 0,004689 | [0,203566 ; 0,212944]      | 3 395  | 1 395 | ✗       |
+| II      | 0,80 | 0,433065 | 0,012468 | [0,420598 ; 0,445533]      | 3 000  | 0     | ✗       |
+| III     | 0,90 | 1,021436 | 0,018807 | [1,002628 ; 1,040243]      | 5 000  | 0     | ✗       |
+| IV      | 0,95 | 1,870855 | 0,024899 | [1,845956 ; 1,895755]      | 19 065 | 9 065 | ✗       |
 
-#### Sobreposição 50 % (lag = 50)
+#### Sobreposição 50 % (lag = M/2, varia por cenário)
 
 | Cenário | ρ    | X̄(n)    | H        | IC (95 %)                  | N       | d   | E[X]∈IC |
 | ------- | ---- | -------- | -------- | -------------------------- | ------- | --- | ------- |
-| I       | 0,70 | 0,241981 | 0,012085 | [0,229896 ; 0,254065]      | 115 000 | 0   | ✓       |
-| II      | 0,80 | 0,407371 | 0,020360 | [0,387010 ; 0,427731]      | 145 000 | 400 | ✓       |
-| III     | 0,90 | 0,930200 | 0,046400 | [0,883800 ; 0,976599]      | 235 000 | 0   | ✓       |
-| IV      | 0,95 | 1,806040 | 0,090076 | [1,715964 ; 1,896116]      | 230 000 | 0   | ✗       |
+| I       | 0,70 | 0,224281 | 0,010607 | [0,213674 ; 0,234889]      | 50 000  | 0   | ✓       |
+| II      | 0,80 | 0,409332 | 0,020343 | [0,388990 ; 0,429675]      | 56 400  | 400 | ✓       |
+| III     | 0,90 | 0,928630 | 0,046165 | [0,882465 ; 0,974794]      | 301 000 | 0   | ✓       |
+| IV      | 0,95 | 1,717685 | 0,085611 | [1,632074 ; 1,803296]      | 610 000 | 0   | ✗       |
 
-#### Sobreposição 25 % (lag = 75)
+#### Sobreposição 25 % (lag = 3M/4, varia por cenário)
 
-| Cenário | ρ    | X̄(n)    | H        | IC (95 %)                  | N       | d | E[X]∈IC |
-| ------- | ---- | -------- | -------- | -------------------------- | ------- | - | ------- |
-| I       | 0,70 | 0,238266 | 0,011880 | [0,226386 ; 0,250146]      | 85 000  | 0 | ✓       |
-| II      | 0,80 | 0,399009 | 0,019916 | [0,379093 ; 0,418925]      | 155 000 | 0 | ✓       |
-| III     | 0,90 | 0,809682 | 0,040481 | [0,769200 ; 0,850163]      | 215 000 | 0 | ✗       |
-| IV      | 0,95 | 2,298483 | 0,127561 | [2,170922 ; 2,426044]      | 380 000 | 0 | ✗       |
+| Cenário | ρ    | X̄(n)    | H        | IC (95 %)                  | N           | d | E[X]∈IC |
+| ------- | ---- | -------- | -------- | -------------------------- | ----------- | - | ------- |
+| I       | 0,70 | 0,236295 | 0,011682 | [0,224613 ; 0,247977]      | 40 000      | 0 | ✓       |
+| II      | 0,80 | 0,402245 | 0,020036 | [0,382210 ; 0,422281]      | 76 000      | 0 | ✓       |
+| III     | 0,90 | 0,855201 | 0,042328 | [0,812873 ; 0,897529]      | 373 000     | 0 | ✗       |
+| IV      | 0,95 | 2,007060 | 0,099732 | [1,907328 ; 2,106791]      | 1 776 000   | 0 | ✗       |
 
-O OBM com sobreposição 100 % (lag=1) produz resultados degradados em todos os cenários: com N=20 000 observações e lotes de tamanho S=100, cria-se M≈9 900 lotes que compartilham quase todas as observações entre si, tornando as médias altamente dependentes e o estimador de variância inválido. A sobreposição 50 % equilibra reúso e independência, obtendo 3/4 ICs válidos. A 25 % approxima-se do NBM mas com 2/4 ICs válidos no Cenário IV.
+**E[X] teórico:** I = 0,2333 s · II = 0,4000 s · III = 0,9000 s · IV = 1,9000 s
+
+O OBM com sobreposição 100 % falha sistematicamente em todos os cenários: com N_steady diminuto (2 000–10 000 obs) e B'≈N_steady lotes sobrepostos com lag=1, a meia-largura H torna-se patologicamente pequena (0,005–0,025 s) antes de N ser suficiente para estimar X̄ corretamente. O ajuste gl=⌊1,5(B'−1)⌋ não compensa a correlação quase perfeita entre lotes consecutivos quando lag=1. A sobreposição 50 % equilibra reúso e independência (3/4 ICs válidos), mas falha no Cenário IV (X̄=1,718 s < E[X]=1,9 s). A sobreposição 25 % exige mais dados que a 50 % e obtém apenas 2/4 ICs válidos.
 
 ![Gráfico Exercício 9 — OBM 100% overlap: estimativas e IC 95% por cenário](imgs/exercicio9_100.png)
 
@@ -262,7 +296,7 @@ O OBM com sobreposição 100 % (lag=1) produz resultados degradados em todos os 
 
 ![Gráfico Exercício 9 — OBM 25% overlap: estimativas e IC 95% por cenário](imgs/exercicio9_25.png)
 
-> **OBM**: maior sobreposição (100%) maximiza reúso de dados mas eleva a correlação entre lotes, inflando o estimador de variância. Sobreposição reduzida (25%) se aproxima do NBM não sobreposto.
+> **OBM** (ε=5%): 100% falha todos os ICs (convergência espúria). 50%: 3/4 ✓. 25%: 2/4 ✓. NBM é mais confiável que OBM em todos os cenários.
 
 ---
 
@@ -270,10 +304,10 @@ O OBM com sobreposição 100 % (lag=1) produz resultados degradados em todos os 
 
 Os três exercícios implementam variantes do método de médias em lote para estimação de IC em simulações de horizonte infinito:
 
-1. **NBM (Exercício 7):** método de referência. Com B=20 lotes e tamanho m=5 000 obs/lote, todos os 4 ICs contêm E[X] e a precisão relativa é satisfeita. O custo amostral cresce com ρ (até N=1 700 000 para ρ=0,95), pois séries mais autocorrelacionadas exigem lotes maiores para que as médias de lote sejam aproximadamente i.i.d.
+1. **NBM (Exercício 7):** método de referência. O uso de t_{B-1} corrige o IC para B pequeno; o RVN garante que M é adequado para que as médias de lote sejam aproximadamente i.i.d. antes de qualquer cálculo de IC. Todos os 4 ICs contêm E[X] e o custo amostral cresce ordenadamente com ρ (77 500 → 1 250 000).
 
-2. **SBM (Exercício 8):** o espaçamento S entre lotes visa decorrelacionar as médias. Com S=1 (NBM com window deslizante de tamanho 1), o método atinge o critério de parada rapidamente mas com ICs incorretos em 2/4 cenários. Com S=M/10, o crescimento do espaçamento elimina demasiadas observações, levando a resultados instáveis — particularmente no Cenário IV (ρ=0,95) onde o viés transiente residual domina a estimativa.
+2. **SBM (Exercício 8):** S=1 é essencialmente idêntico ao NBM (descarta apenas 1 observação por M, efeito desprezível). S=M/10 é mais eficiente — descarta 10% por lote mas satisfaz RVN com M menor, reduzindo N total no Cenário IV de 1 250 000 para 884 565. Todos os 8 ICs (4 por variante) cobrem E[X].
 
-3. **OBM (Exercício 9):** a sobreposição 100 % (lag=1) é matematicamente equivalente a usar quase todas as observações em cada lote, tornando as médias correlacionadas de modo patológico e produzindo ICs completamente fora do alvo. Sobreposição 50 % (lag=50) equilibra eficiência amostral e independência, sendo a variante mais adequada neste experimento. A sobreposição 25 % (lag=75) exige amostras maiores que a 50 %, sem ganho de cobertura.
+3. **OBM (Exercício 9):** a sobreposição 100 % produz convergência espúria — o critério H/X̄ ≤ 5 % é satisfeito com N_steady = 2 000–10 000 observações, muito antes de X̄ ser uma estimativa estável. O ajuste gl=⌊1,5(B'−1)⌋ é insuficiente para a correlação quase perfeita entre lotes com lag=1. As sobreposições 50 % e 25 % melhoram a situação, mas ainda falham nos cenários de maior carga (ρ=0,90 e ρ=0,95).
 
-Em todos os casos, a corretude depende tanto do tamanho de lote m quanto da qualidade da detecção do transiente pelo MSER-5Y. Para ρ elevado (cenários III e IV), a estimação é intrinsecamente mais difícil e requer amostras substancialmente maiores.
+Em geral, NBM e SBM S=M/10 são os métodos mais robustos desta família para a fila M/M/1 com ρ elevado. A qualidade da detecção do transiente pelo MSER-5Y (que agora retorna sempre o argmin sem fallback para d=0) é fator determinante para a validade dos resultados.

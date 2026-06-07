@@ -23,16 +23,17 @@ A fórmula analítica do tempo médio de espera em fila M/M/1:
 $$E[X] = \frac{\rho}{\mu(1 - \rho)}, \quad \rho = \frac{\lambda}{\mu}$$
 
 Todos os experimentos utilizam:
+
 - **MSER-5Y** para detecção e eliminação do transiente
 - **Critério de parada:** H/X̄ ≤ 5 % (precisão relativa)
-- **IC:** 95 % (z₀,₉₇₅ = 1,96)
+- **IC:** 95 % — quantil t-Student com graus de liberdade dependentes do método
 - **Seed:** 42
 
 ---
 
 ## Implementação
 
-Os métodos STS (Standardized Time Series) constroem estatísticas que convergem em distribuição para permitir estimação de IC com alta autocorrelação. Ambos operam sobre a série pós-transiente obtida pelo MSER-5Y.
+Os métodos STS (Standardized Time Series) constroem estatísticas que convergem em distribuição para permitir estimação de IC com alta autocorrelação. Ambos operam sobre a série pós-transiente obtida pelo MSER-5Y e compartilham a estrutura de **área geométrica** de cada lote como estimador central.
 
 ### Estrutura comum — detecção de transiente
 
@@ -40,15 +41,18 @@ Os métodos STS (Standardized Time Series) constroem estatísticas que convergem
 sim = MM1Queue(lam=lam, mu=mu, seed=seed)
 sim._reset()
 
-buf = sim.generate(INIT_WARMUP)   # 20 000 obs
-d = None
-while d is None:
-    d = mser5y(buf)
-    if d is None:
-        buf = np.concatenate([buf, sim.generate(EXTRA_WARMUP)])
-
-buf_steady = buf[d:]              # descarta transiente
+buf = sim.generate(20_000)   # observações iniciais
+d = mser5y(buf)              # MSER-5Y: retorna argmin sem fallback para zero
+buf_steady = buf[d:]         # descarta transiente
 ```
+
+### Estrutura comum — área geométrica dos lotes
+
+Para o i-ésimo lote de M observações consecutivas, a área geométrica é a soma ponderada pelo desvio de posição central em relação ao ponto médio do lote:
+
+$$A_i = \sum_{j=1}^{M}\left(\frac{M+1}{2} - j\right) X_{(i-1)M+j}$$
+
+As áreas $A_i$ têm média zero quando a série é estacionária e, pelo TCL, convergem para uma distribuição normal conforme M cresce. A normalidade é verificada por **Shapiro-Wilk** (α = 5%) antes de construir o IC.
 
 ---
 
@@ -56,54 +60,64 @@ buf_steady = buf[d:]              # descarta transiente
 
 ### Descrição
 
-O método STS/ÁREA (Standardized Time Series — área sob a curva) estima a variância assintótica via o **fator de autocorrelação** γ₀, que acumula correlações de todos os lags:
+O método STS/ÁREA constrói o IC diretamente a partir das áreas geométricas, sem necessidade de estimar autocorrelações individualmente. A soma dos quadrados das áreas é proporcional à variância assintótica da série:
 
-$$\hat{\gamma}_0 = 1 + 2\sum_{k=1}^{K}\hat{\rho}(k), \qquad H = z_{0{,}975}\sqrt{\frac{\hat{\sigma}^2 \cdot \hat{\gamma}_0}{M}}$$
+$$H = t_{B,\,\alpha/2}\sqrt{\frac{12\sum_{i=1}^{B} A_i^2}{N^2(M^2-1)}}$$
 
-onde $\hat{\sigma}^2$ é a variância amostral e M é o número de observações pós-transiente. A soma é truncada em K = ⌊√M⌋. Um γ₀ > 1 indica autocorrelação positiva — o IC precisa ser alargado proporcionalmente.
+O fator 12/(M²−1) normaliza as áreas para a escala da variância da média. Com B = 20 lotes fixos e M crescendo de 50 em 50 até as áreas serem normais e H/X̄ ≤ 5 %.
 
 ### Código
 
 ```python
-# ── Passo 2: STS/ÁREA com parada por precisão relativa ───────────────────────
+# ── Passo 2: STS/ÁREA com Shapiro-Wilk e parada por precisão relativa ────────
+B = 20
+M = 100
+ALPHA = 0.05
+normalidade_confirmada = False
+
 while True:
-    M = len(buf_steady)
-    X_bar = float(buf_steady.mean())
-    sigma2 = float(buf_steady.var(ddof=1))
+    N = B * M
+    while len(buf_steady) < N:
+        buf_steady = np.concatenate([buf_steady, sim.generate(5_000)])
 
-    # Estimativa da função de autocorrelação
-    K = max(1, int(np.sqrt(M)))
-    demeaned = buf_steady - X_bar
-    gamma0 = 1.0
-    for k in range(1, K + 1):
-        rho_k = float(np.dot(demeaned[:-k], demeaned[k:]) / ((M - k) * sigma2))
-        gamma0 += 2 * rho_k
+    amostra = buf_steady[:N]
+    blocos = amostra.reshape(B, M)
+    pesos = (M + 1) / 2.0 - np.arange(1, M + 1)
+    areas = blocos @ pesos   # shape (B,): área de cada lote
 
-    gamma0 = max(1.0, gamma0)
-    H = Z95 * np.sqrt(sigma2 * gamma0 / M)
+    if not normalidade_confirmada:
+        _, p_valor = sp_stats.shapiro(areas)
+        if p_valor < ALPHA:
+            M += 50          # áreas não normais → lote maior
+            continue
+        normalidade_confirmada = True
+
+    X_bar = float(amostra.mean())
+    soma_A2 = float(np.sum(areas ** 2))
+    H = sp_stats.t.ppf(1 - ALPHA/2, B) * np.sqrt(12 * soma_A2 / (N**2 * (M**2 - 1)))
 
     if X_bar > 0 and H / X_bar <= epsilon:
         break
 
-    buf_steady = np.concatenate([buf_steady, sim.generate(5_000)])
+    M += 50
 ```
 
 ### Resultados Obtidos
 
-| Cenário | ρ    | X̄(n)    | H        | γ₀     | IC (95 %)                  | N       | d     | E[X]∈IC |
-| ------- | ---- | -------- | -------- | ------ | -------------------------- | ------- | ----- | ------- |
-| I       | 0,70 | 0,238997 | 0,011931 | 1,175  | [0,227066 ; 0,250929]      | 95 000  | 0     | ✓       |
-| II      | 0,80 | 0,392503 | 0,024432 | 1,654  | [0,368070 ; 0,416935]      | 100 000 | 0     | ✓       |
-| III     | 0,90 | 0,818180 | 0,108319 | 4,688  | [0,709861 ; 0,926499]      | 105 000 | 4 910 | ✓       |
-| IV      | 0,95 | 2,091769 | 0,604734 | 18,009 | [1,487035 ; 2,696503]      | 100 000 | 0     | ✓       |
+| Cenário | ρ    | X̄(n)    | H        | IC (95 %)                  | N         | d     | E[X]∈IC |
+| ------- | ---- | -------- | -------- | -------------------------- | --------- | ----- | ------- |
+| I       | 0,70 | 0,233456 | 0,010558 | [0,222898 ; 0,244014]      | 52 000    | 0     | ✓       |
+| II      | 0,80 | 0,394247 | 0,019300 | [0,374946 ; 0,413547]      | 101 000   | 0     | ✓       |
+| III     | 0,90 | 0,898983 | 0,044568 | [0,854416 ; 0,943551]      | 426 910   | 4 910 | ✓       |
+| IV      | 0,95 | 1,945316 | 0,097043 | [1,848274 ; 2,042359]      | 1 492 000 | 0     | ✓       |
 
 **E[X] teórico:** I = 0,2333 s · II = 0,4000 s · III = 0,9000 s · IV = 1,9000 s
 
-O fator γ₀ cresce drasticamente com ρ — de 1,18 (ρ=0,70) a 18,01 (ρ=0,95) — refletindo a forte autocorrelação da série para cargas elevadas. Consequentemente, H cresce de 0,012 s a 0,60 s. Todos os 4 ICs contêm E[X] teórico, mas a precisão relativa para o Cenário IV é degradada (H/X̄ ≈ 28,9%), indicando que N = 100 000 é insuficiente para atingir ε = 5% quando ρ = 0,95 — o critério de parada atingiu o limite máximo de iterações.
+Todos os 4 ICs cobrem E[X]. M cresce acentuadamente com ρ para que as áreas geométricas satisfaçam Shapiro-Wilk, elevando N de 52 000 (ρ=0,70) a 1 492 000 (ρ=0,95). No Cenário III, o MSER-5Y detectou transiente d=4 910, descartando ≈1,1% das observações antes do estado estacionário.
 
 ![Gráfico Exercício 10 — STS/ÁREA: estimativas e IC 95% por cenário](imgs/exercicio10.png)
 
-> **STS/ÁREA** (ε=5%): fator γ₀ = 1,18 (ρ=0,70) → 18,01 (ρ=0,95). Todos os ICs cobrem E[X], mas largura cresce com ρ.
+> **STS/ÁREA** (ε=5%): 4/4 ICs válidos. N varia de 52 000 a 1 492 000 conforme ρ.
 
 ---
 
@@ -111,118 +125,104 @@ O fator γ₀ cresce drasticamente com ρ — de 1,18 (ρ=0,70) a 18,01 (ρ=0,95
 
 ### Descrição
 
-O método STS/CSUM (Standardized Time Series — soma cumulativa) constrói a série $S_k$ de somas parciais padronizadas pela variância amostral $\hat{s}$:
+O método STS/CSUM combina a **área geométrica** de cada lote com a **variância inter-lote** em uma única estatística A, capturando tanto a variabilidade interna dos lotes quanto a variação entre lotes:
 
-$$S_k = \frac{1}{\hat{s}}\sum_{i=1}^{k}(X_i - \bar{X}), \quad k = 1, \ldots, n$$
+$$A = \sum_{i=1}^{B}\left[\frac{12\,A_i^2}{M^3 - M} + M\,(\bar{X} - \bar{X}_i)^2\right]$$
 
-A variância da série CSUM é estimada como:
+O primeiro termo é a contribuição normalizada da área geométrica; o segundo é o quadrado do desvio da média do lote $\bar{X}_i$ em relação à média global $\bar{X}$, ponderado por M. O IC usa t-Student com 2B−1 graus de liberdade:
 
-$$\hat{\sigma}^2_{\text{CSUM}} = \frac{1}{n}\sum_{k=1}^{n}S_k^2, \qquad H = z_{0{,}975}\sqrt{\frac{\hat{\sigma}^2_{\text{CSUM}}}{n}}$$
+$$H = t_{2B-1,\,\alpha/2}\sqrt{\frac{A}{N\,(2B-1)}}$$
 
-Teoricamente, para uma série i.i.d., $S_k$ é uma caminhada aleatória padronizada e $\hat{\sigma}^2_{\text{CSUM}} \to 1/3$.
+Os 2B−1 graus de liberdade refletem a combinação de B estimativas de área (com 1 g.l. cada) e B−1 desvios inter-lote. A normalidade das áreas é verificada por Shapiro-Wilk (α = 5%) antes do cálculo de H.
 
 ### Código
 
 ```python
-# ── Passo 2: STS/CSUM com parada por precisão relativa ───────────────────────
-while True:
-    n = len(buf_steady)
-    X_bar = float(buf_steady.mean())
-    s_hat = float(buf_steady.std(ddof=1))
+# ── Passo 2: STS/CSUM com Shapiro-Wilk e parada por precisão relativa ────────
+B = 20
+M = 100
+ALPHA = 0.05
+normalidade_confirmada = False
 
-    if s_hat > 0:
-        S = np.cumsum(buf_steady - X_bar) / s_hat
-        sigma2_csum = float(np.mean(S ** 2))
-        H = Z95 * np.sqrt(sigma2_csum / n)
-    else:
-        H = float('inf')
+while True:
+    N = B * M
+    while len(buf_steady) < N:
+        buf_steady = np.concatenate([buf_steady, sim.generate(5_000)])
+
+    amostra = buf_steady[:N]
+    blocos = amostra.reshape(B, M)
+    pesos = (M + 1) / 2.0 - np.arange(1, M + 1)
+    areas = blocos @ pesos
+
+    if not normalidade_confirmada:
+        _, p_valor = sp_stats.shapiro(areas)
+        if p_valor < ALPHA:
+            M += 50
+            continue
+        normalidade_confirmada = True
+
+    medias_bloco = blocos.mean(axis=1)
+    X_bar = float(amostra.mean())
+
+    A = float(np.sum(12 * areas**2 / (M**3 - M) + M * (X_bar - medias_bloco)**2))
+    H = sp_stats.t.ppf(1 - ALPHA/2, 2*B - 1) * np.sqrt(A / (N * (2*B - 1)))
 
     if X_bar > 0 and H / X_bar <= epsilon:
         break
 
-    buf_steady = np.concatenate([buf_steady, sim.generate(5_000)])
+    M += 50
 ```
 
 ### Resultados Obtidos
 
-| Cenário | ρ    | X̄(n)      | H          | σ²_CSUM  | IC (95 %)                        | N       | d     | E[X]∈IC |
-| ------- | ---- | ---------- | ---------- | -------- | -------------------------------- | ------- | ----- | ------- |
-| I       | 0,70 | 0,236564   | 2,559082   | large    | [−2,322 ; 3,031]                 | 500 000 | 0     | ✓       |
-| II      | 0,80 | 0,394316   | 4,273396   | large    | [−3,879 ; 4,668]                 | 500 000 | 0     | ✓       |
-| III     | 0,90 | 0,905344   | 11,212741  | large    | [−10,307 ; 12,118]               | 500 500 | 500   | ✓       |
-| IV      | 0,95 | 1,769495   | 23,533483  | large    | [−21,764 ; 25,303]               | 500 500 | 0     | ✓       |
+| Cenário | ρ    | X̄(n)    | H        | A/(N·(2B−1))  | IC (95 %)                  | N           | d | E[X]∈IC |
+| ------- | ---- | -------- | -------- | ------------- | -------------------------- | ----------- | - | ------- |
+| I       | 0,70 | 0,224999 | 0,011218 | 0,0000        | [0,213782 ; 0,236217]      | 78 000      | 0 | ✓       |
+| II      | 0,80 | 0,375560 | 0,018776 | 0,0001        | [0,356784 ; 0,394336]      | 103 000     | 0 | ✗       |
+| III     | 0,90 | 0,874148 | 0,043469 | 0,0005        | [0,830678 ; 0,917617]      | 539 000     | 0 | ✓       |
+| IV      | 0,95 | 1,965395 | 0,098127 | 0,0024        | [1,867268 ; 2,063522]      | 3 515 000   | 0 | ✓       |
 
 **E[X] teórico:** I = 0,2333 s · II = 0,4000 s · III = 0,9000 s · IV = 1,9000 s
 
-Os valores de H são patologicamente grandes (2,56 s a 23,5 s), tornando os ICs extremamente largos e sem utilidade prática. A causa está na implementação: $\hat{\sigma}^2_{\text{CSUM}}$ acumula a soma quadrática de S_k sobre toda a série, mas como S_k é uma caminhada aleatória de n passos, seu valor cresce proporcionalmente a √n, fazendo σ²_CSUM crescer com n em vez de convergir. O critério de parada H/X̄ ≤ 5 % nunca é satisfeito — a simulação encerra pelo limite máximo de N = 500 000 observações.
-
-Apesar dos ICs degenerados, as estimativas de X̄ são razoáveis (todos os E[X] teóricos estão dentro do IC, mas apenas porque o IC é enorme). O erro na implementação está na ausência de normalização adequada de S_k para o caso autocorrelacionado.
+3/4 ICs cobrem E[X]. O Cenário II falha: X̄=0,3756, IC=[0,3568; 0,3944], mas E[X]=0,4000 > 0,3944. Trata-se de uma falha de cobertura estatisticamente esperada (IC 95 % falha em ~5 % das realizações). Os valores de A/(N·(2B−1)) crescem de 0,0000 (ρ=0,70) a 0,0024 (ρ=0,95), refletindo o aumento da variância da média com a autocorrelação. O Cenário IV exige N=3 515 000 — o maior de todos os métodos — indicando que a combinação de dois termos em A pode ser conservadora para ρ muito elevado.
 
 ![Gráfico Exercício 11 — STS/CSUM: estimativas e IC 95% por cenário](imgs/exercicio11.png)
 
-> **STS/CSUM** (ε=5%): σ²_CSUM diverge com n em série autocorrelacionada — H patologicamente grande. Estimativas X̄ válidas mas ICs sem precisão prática.
+> **STS/CSUM** (ε=5%): 3/4 ICs válidos. Cenário II falha por cobertura. Cenário IV exige N=3 515 000.
 
 ---
 
-## Exercício 12 — Análise Comparativa dos Cinco Métodos
+## Exercício 12 — Análise Comparativa dos Seis Métodos
 
 ### Descrição
 
-Comparação direta dos seis estimadores (NBM, SBM S=1, SBM S=M/10, OBM 100%, STS/ÁREA, STS/CSUM) para o Cenário IV (λ=9,5, ρ=0,95, E[X]=1,9 s), o mais exigente.
+Comparação direta dos seis estimadores no **Cenário IV** (λ=9,5, ρ=0,95, E[X]=1,9 s), o mais exigente em termos de autocorrelação.
 
-| Estimador        | Parâmetro chave | Normaliza autocorr.? |
-| ---------------- | --------------- | -------------------- |
-| NBM              | B = 20          | Sim (lotes grandes)  |
-| SBM (S=1)        | S = 1           | Parcialmente         |
-| SBM (S=M/10)     | S adaptativo    | Sim (espaçamento)    |
-| OBM (100%)       | lag = 1         | Não (lag mínimo)     |
-| STS/ÁREA         | K = ⌊√M⌋        | Sim (soma ρ(k))      |
-| STS/CSUM         | n → ∞           | Não (implementação)  |
+| Estimador     | Quantil IC        | Valida independência | Mecanismo central           |
+| ------------- | ----------------- | -------------------- | --------------------------- |
+| NBM           | t_{B−1}           | RVN                  | Lotes não sobrepostos       |
+| SBM (S=1)     | t_{B−1}           | RVN                  | Descarta 1 obs/lote         |
+| SBM (S=M/10)  | t_{B−1}           | RVN                  | Descarta M/10 obs/lote      |
+| OBM (100%)    | t_{⌊1,5(B'−1)⌋}  | RVN em lotes NBM     | Sobreposição total (lag=1)  |
+| STS/ÁREA      | t_B               | Shapiro-Wilk         | Área geométrica             |
+| STS/CSUM      | t_{2B−1}          | Shapiro-Wilk         | Área + variância inter-lote |
 
-### Código
+### Resultados para o Cenário IV (ρ = 0,95 · E[X] = 1,9000 s)
 
-```python
-# ── Cenário IV: compara todos os métodos ─────────────────────────────────────
-lam, mu = 9.5, 10.0
-E_true = theoretical_mean(lam, mu)
-
-methods = {
-    'NBM':         nbm_simulation(lam, mu, B=20, epsilon=0.05, seed=SEED+95),
-    'SBM (S=1)':   sbm_simulation(lam, mu, S_mode='fixed',    epsilon=0.05, seed=SEED+95),
-    'SBM (S=M/10)':sbm_simulation(lam, mu, S_mode='adaptive', epsilon=0.05, seed=SEED+95),
-    'OBM (100%)':  obm_simulation(lam, mu, overlap_pct=100,   epsilon=0.05, seed=SEED+95),
-    'STS/ÁREA':    sts_area_simulation(lam, mu,                epsilon=0.05, seed=SEED+95),
-    'STS/CSUM':    sts_csum_simulation(lam, mu,                epsilon=0.05, seed=SEED+95),
-}
-```
-
-### Resultados para o Cenário IV (ρ = 0,95 · E[X] = 1,9 s)
-
-| Método        | X̄(n)    | H         | IC (95 %)                    | N           | Erro rel. | E[X]∈IC |
-| ------------- | -------- | --------- | ---------------------------- | ----------- | --------- | ------- |
-| NBM           | 1,854680 | 0,090263  | [1,764417 ; 1,944944]        | 1 700 000   | −2,385%   | ✓       |
-| SBM (S=1)     | 1,863257 | 0,091878  | [1,771379 ; 1,955135]        | 20 000      | −1,934%   | ✓       |
-| SBM (S=M/10)  | 3,787387 | 0,079252  | [3,708135 ; 3,866639]        | 20 000      | +99,336%  | ✗       |
-| OBM (100%)    | 3,554445 | 0,033859  | [3,520585 ; 3,588304]        | 20 000      | +87,076%  | ✗       |
-| STS/ÁREA      | 2,091769 | 0,604734  | [1,487035 ; 2,696503]        | 100 000     | +10,093%  | ✓       |
-| STS/CSUM      | 1,769495 | 23,533483 | [−21,764 ; 25,303]           | 500 500     | −6,869%   | ✓       |
+| Método        | X̄(n)    | H        | IC (95 %)                  | N           | d     | Erro rel. | E[X]∈IC |
+| ------------- | -------- | -------- | -------------------------- | ----------- | ----- | --------- | ------- |
+| NBM           | 1,931552 | 0,096557 | [1,834995 ; 2,028110]      | 1 250 000   | 0     | +1,661 %  | ✓       |
+| SBM (S=1)     | 1,931586 | 0,096577 | [1,835009 ; 2,028163]      | 1 250 000   | 0     | +1,662 %  | ✓       |
+| SBM (S=M/10)  | 1,870786 | 0,093394 | [1,777392 ; 1,964180]      | 884 565     | 9 065 | −1,538 %  | ✓       |
+| OBM (100%)    | 1,870855 | 0,024899 | [1,845956 ; 1,895755]      | 19 065      | 9 065 | −1,534 %  | ✗       |
+| STS/ÁREA      | 1,945316 | 0,097043 | [1,848274 ; 2,042359]      | 1 492 000   | 0     | +2,385 %  | ✓       |
+| STS/CSUM      | 1,965395 | 0,098127 | [1,867268 ; 2,063522]      | 3 515 000   | 0     | +3,442 %  | ✓       |
 
 **E[X] teórico = 1,9000 s**
 
-### Análise por critério
+5 de 6 métodos produzem IC válido. O OBM (100%) falha: apesar de X̄=1,871 s (erro −1,5 %), o IC é excessivamente estreito (H=0,025 s, menos de ¼ dos demais) — o algoritmo encerrou com apenas N_steady=10 000 observações, muito antes de X̄ ser uma estimativa estável. Com B'≈9 500 lotes sobrepostos com lag=1 derivados dessas 10 000 obs, a meia-largura H colapsa para valores irrealisticamente pequenos (mas incorretos).
 
-**Menor erro relativo:** SBM S=1 (−1,93%). Porém, o IC é obtido com apenas N=20 000, claramente insuficiente para ρ=0,95. O resultado é espúrio — satisfaz H/X̄ ≤ 5 % mas a estimativa ainda está no transiente.
-
-**IC mais estreito:** OBM 100 % (H=0,034). Extremamente estreito, mas completamente errado (X̄=3,55 vs E[X]=1,9). Demonstra que IC estreito ≠ IC correto quando o estimador de variância é inadequado.
-
-**ICs que cobrem E[X]:** 4/6 métodos (NBM, SBM S=1, STS/ÁREA, STS/CSUM). Dos 4, apenas NBM e STS/ÁREA têm N grande o suficiente para representar o estado estacionário de forma confiável.
-
-**Método mais robusto:** NBM. Com N=1 700 000, lotes suficientemente grandes e variância bem estimada, produz o IC mais confiável para ρ=0,95.
-
-**Métodos problemáticos:**
-- SBM S=M/10: espaçamento crescente descarta demasiadas observações, capturando apenas o transiente quando d é elevado.
-- OBM 100%: lag=1 cria correlação quase perfeita entre lotes consecutivos, tornando o estimador de variância espúrio.
-- STS/CSUM: implementação incorreta — σ²_CSUM não converge para série autocorrelacionada.
+NBM e SBM(S=1) produzem resultados quase idênticos (+1,66% de erro, N=1 250 000) — o descarte de 1 observação por lote é irrelevante quando M é da ordem de milhares. SBM(S=M/10) é o mais eficiente: IC válido com N=884 565, o menor N entre os métodos corretos. STS/CSUM exige N=3 515 000 (2,8× o NBM) para a mesma precisão no Cenário IV, indicando que a estatística combinada A/(N·(2B−1)) converge mais lentamente sob alta autocorrelação.
 
 ![Gráfico Exercício 12 — Comparação dos métodos: X̄ e IC 95%](imgs/exercicio12_comparacao_metodos.png)
 
@@ -230,18 +230,14 @@ methods = {
 
 ![Gráfico Exercício 12 — Tamanho amostral por método](imgs/exercicio12_tamanho_amostras.png)
 
-> **Comparação** (Cenário IV, ρ=0,95): menor erro relativo → SBM (S=1); IC mais estreito → OBM (100%). 4/6 ICs cobrem E[X] teórico. NBM é o método mais robusto com N=1 700 000.
-
 ---
 
 ## Considerações Finais
 
-Os exercícios 10–12 exploram métodos de STS (Standardized Time Series) e a comparação agregada dos cinco estimadores implementados nesta e na atividade anterior.
+Os exercícios 10–12 exploram métodos STS e a comparação agregada dos seis estimadores.
 
-1. **STS/ÁREA (Exercício 10):** estima o fator de autocorrelação γ₀ via soma das autocorrelações de todos os lags até K=⌊√M⌋. É conceitualmente correto e produz 4/4 ICs cobrindo E[X]. A limitação prática é que γ₀ cresce muito para ρ próximo de 1 (γ₀=18 no Cenário IV), exigindo amostras enormes para H/X̄ ≤ 5 %. Para ρ=0,95, o critério de parada não foi satisfeito dentro do limite amostral de 100 000 observações.
+1. **STS/ÁREA (Exercício 10):** 4/4 ICs válidos. A área geométrica $A_i$ é um estimador não paramétrico da variância assintótica que não requer cálculo explícito de autocorrelações. Para ρ próximo de 1, M precisa crescer mais (Shapiro-Wilk), elevando N de 52 000 (ρ=0,70) a 1 492 000 (ρ=0,95). Método robusto e confiável.
 
-2. **STS/CSUM (Exercício 11):** a implementação atual acumula S_k como caminhada aleatória de n passos sem normalização adequada para série autocorrelacionada, fazendo σ²_CSUM crescer em vez de convergir. Os valores de X̄ são razoáveis mas os ICs são inúteis (H de dezenas de segundos). A correção exigiria normalizar S_k pelo fator de lote e usar a versão assintótica da distribuição de $\int_0^1 B(t)^2 dt$.
+2. **STS/CSUM (Exercício 11):** 3/4 ICs válidos. A falha no Cenário II (E[X]=0,4 cai marginalmente fora do IC superior) é uma falha de cobertura estatisticamente esperada. A maior limitação é o custo amostral: N=3 515 000 para ρ=0,95 — o mais alto entre todos os métodos analisados. O segundo termo de A (variância inter-lote) adiciona conservadorismo que pode ser excessivo.
 
-3. **Análise comparativa (Exercício 12):** para o Cenário IV (ρ=0,95), apenas NBM e STS/ÁREA produzem resultados simultaneamente válidos (IC cobre E[X]) e confiáveis (N suficiente para estado estacionário). NBM é o método de referência por combinar corretude estatística com controle explícito do tamanho de lote. OBM 100 % demonstra que maximizar o reúso de dados via sobreposição total invalida o estimador de variância. SBM adaptativo é o mais instável, sensível ao tamanho de d relativo a N.
-
-Em geral, para filas M/M/1 de alta carga (ρ ≥ 0,90), todos os métodos exigem amostras da ordem de 10⁵–10⁶ observações, e a qualidade da detecção do transiente pelo MSER-5Y é fator determinante para a validade dos resultados.
+3. **Análise comparativa (Exercício 12):** para ρ=0,95, todos os métodos baseados em lotes de tamanho adequado (NBM, SBM, STS/ÁREA) produzem ICs válidos com erros relativos inferiores a 3,5 %. O OBM com sobreposição 100 % é o único que falha sistematicamente, por um problema estrutural: o algoritmo satisfaz H/X̄ ≤ 5 % com N_steady patologicamente pequeno, pois B'≈N produz um denominador inflado que colapsa H antes de X̄ convergir. O método mais eficiente para ρ=0,95 é o SBM(S=M/10), com N=884 565 e IC válido.

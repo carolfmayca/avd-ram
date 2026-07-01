@@ -1,0 +1,4 @@
+A,B,C,rep,timestamp,so,ram_total_gb,ram_disponivel_gb,ram_usada_gb,uso_percent,num_processos,top1_nome,top1_ram_mb,top2_nome,top2_ram_mb,top3_nome,top3_ram_mb
+1,-1,-1,1,2026-07-01 20:30:01,Windows 10.0.26200,7.84,3.57,4.27,54.5,221,MsMpEng.exe,390.0,CrossDeviceService.exe,163.2,explorer.exe,155.1
+1,-1,-1,2,2026-07-01 20:30:21,Windows 10.0.26200,7.84,3.64,4.2,53.6,220,MsMpEng.exe,392.1,CrossDeviceService.exe,160.9,explorer.exe,155.3
+1,-1,-1,3,2026-07-01 20:30:41,Windows 10.0.26200,7.84,3.58,4.25,54.3,218,MsMpEng.exe,323.7,CrossDeviceService.exe,163.3,explorer.exe,154.8

@@ -61,11 +61,10 @@ controláveis, não controláveis e mantidos constantes.
 | 5 | Modo de energia / desempenho | Controlável (mantido constante) |
 | 6 | Número de processos em segundo plano | Parcialmente controlável |
 | 7 | Atualizações automáticas do SO (Windows Update, dnf) | Não controlável |
-| 8 | Atividade do antivírus (MsMpEng) | Não controlável |
-| 9 | Arquitetura / geração da CPU | Não controlável (hardware fixo) |
-| 10 | Velocidade / geração da RAM | Não controlável (hardware fixo) |
-| 11 | Cache de disco gerenciado pelo kernel | Não controlável |
-| 12 | Tempo de estabilização antes da medição | Controlável (mantido constante) |
+| 8 | Arquitetura / geração da CPU | Não controlável (hardware fixo) |
+| 9 | Velocidade / geração da RAM | Não controlável (hardware fixo) |
+| 10 | Cache de disco gerenciado pelo kernel | Não controlável |
+| 11 | Tempo de estabilização antes da medição | Controlável (mantido constante) |
 
 <br>
 
@@ -78,7 +77,7 @@ controláveis, não controláveis e mantidos constantes.
 | **C — Carga de trabalho** | Selecionado | Permite testar se o efeito do SO depende da carga (interação); dois níveis controláveis (repouso vs conjunto fixo de aplicações). |
 | Uso de SWAP | Controlado, não analisado | Mantido na configuração padrão de cada SO para não introduzir um quarto fator e manter `k = 3` viável. |
 | Modo de energia | Controlado, não analisado | Fixado em "alto desempenho" em todas as combinações para isolar os fatores analisados. |
-| Atualização automática / antivírus | Descartado | Não controlável de forma confiável; tratado como fonte de ruído (erro experimental). |
+| Atualização automática | Descartado | Não controlável de forma confiável; tratado como fonte de ruído (erro experimental). |
 | Geração de CPU/RAM | Descartado | Hardware fixo por máquina; não tem dois níveis manipuláveis dentro da trilha. |
 
 <br>
@@ -102,16 +101,21 @@ controláveis, não controláveis e mantidos constantes.
 | `N` total de medições | `2³ × 3 = 24` |
 | Métrica registrada | `uso_percent` (% de uso da RAM) |
 
-**Justificativa para `r = 3`:** a replicação é necessária para estimar o erro
-experimental — sem repetir a medição na mesma combinação não é possível separar a
-variação causada pelos fatores da variação aleatória do sistema. `r = 3` é o mínimo
-exigido pela atividade e suficiente para uma primeira estimativa do erro; o baseline
-mostrou desvios-padrão baixos (precisão relativa < 3% na maioria dos cenários), o que
-torna `r = 3` razoável para esta etapa exploratória.
+**Justificativa para `r = 3`:** foi adotado `r = 3` porque ele equilibra precisão
+estatística e viabilidade de coleta. Em um projeto fatorial `2³`, três repetições por
+combinação produzem `8 × (3 - 1) = 16` graus de liberdade para estimar o erro
+experimental, permitindo calcular a variabilidade dentro de cada combinação e comparar
+se os efeitos dos fatores são grandes em relação ao ruído natural das medições. Usar
+apenas uma repetição impossibilitaria essa comparação, e usar `r = 2` deixaria uma
+estimativa de erro mais frágil. Valores maiores de `r` aumentariam a confiabilidade,
+mas também elevariam o custo de coleta; com `r = 3`, o experimento totaliza 24 medições,
+um volume administrável para o grupo. Além disso, o baseline do Mini Estudo 1 indicou
+desvios-padrão baixos na maioria dos cenários, tornando `r = 3` suficiente para uma
+análise exploratória inicial.
 
 **Cuidados de execução:** manter constantes os fatores não analisados (SWAP, modo de
 energia, tempo de estabilização); executar as combinações em ordem aleatória; usar o
-mesmo procedimento de coleta (`coleta_fatorial.py`) em todas; registrar anomalias e
+mesmo procedimento de coleta em todas; registrar anomalias e
 medições descartadas.
 
 ### Matriz experimental (tabela de sinais)
@@ -127,8 +131,6 @@ medições descartadas.
 | 7 | − | + | + | − | − | + | − |
 | 8 | + | + | + | + | + | + | + |
 
-Cada combinação é medida `r = 3` vezes. Os dados brutos vão em
-[dados_2k_r.csv](dados_2k_r.csv) (uma linha por medição: `A,B,C,rep,uso_percent`).
 
 <br>
 
@@ -234,13 +236,11 @@ exercer pressão real de memória.
 
 **10. Que limitações ameaçam a validade dos resultados?**
 - **Confusão fator B × hardware:** os níveis de 8 GB e 16 GB vêm de máquinas físicas
-  diferentes (operadoras distintas), então o efeito de "tamanho de RAM" está misturado
+  diferentes (operadores distintos), então o efeito de "tamanho de RAM" está misturado
   com diferenças de hardware e de processos nativos.
 - **Replicações pouco independentes:** medidas na mesma sessão (20 s), subestimando o
   erro experimental real.
-- **Carga pesada fraca:** o nível +1 de C não se diferenciou o suficiente do repouso.
-- **Fatores não controlados:** atualizações automáticas e antivírus (Windows) atuaram
-  como ruído não isolado.
+- **Carga pesada fraca:** o nível +1 de C não se diferenciou o 
 
 <br>
 

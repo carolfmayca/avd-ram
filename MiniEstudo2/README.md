@@ -134,74 +134,136 @@ Cada combinação é medida `r = 3` vezes. Os dados brutos vão em
 
 ## 6. Resultados
 
-> Preencher após a coleta. Rodar `python analise_fatorial.py dados_2k_r.csv`, que
-> calcula automaticamente as tabelas abaixo. Os valores brutos completos ficam em
-> [dados_2k_r.csv](dados_2k_r.csv).
+Coleta realizada em 2026-07-01. Cenários de 16 GB por Carolina (Ubuntu 24.04 /
+Windows 11), cenários de 8 GB por Luiza (Ubuntu 24.04 / Windows 11). `N = 24`,
+`r = 3`, média geral `q0 = 33,33 %`. Valores brutos em
+[dados_2k_r.csv](dados_2k_r.csv).
 
 ### Repetições por combinação
 
 | Comb. | A | B | C | $y_1$ | $y_2$ | $y_3$ |
 |:-----:|:--:|:--:|:--:|:---:|:---:|:---:|
-| 1 | − | − | − | _ | _ | _ |
-| 2 | + | − | − | _ | _ | _ |
-| 3 | − | + | − | _ | _ | _ |
-| 4 | + | + | − | _ | _ | _ |
-| 5 | − | − | + | _ | _ | _ |
-| 6 | + | − | + | _ | _ | _ |
-| 7 | − | + | + | _ | _ | _ |
-| 8 | + | + | + | _ | _ | _ |
+| 1 | − | − | − | 18,2 | 17,7 | 17,8 |
+| 2 | + | − | − | 54,5 | 53,6 | 54,3 |
+| 3 | − | + | − | 18,1 | 18,1 | 18,1 |
+| 4 | + | + | − | 40,3 | 39,4 | 40,9 |
+| 5 | − | − | + | 17,7 | 17,7 | 17,7 |
+| 6 | + | − | + | 54,4 | 55,6 | 54,0 |
+| 7 | − | + | + | 18,1 | 18,1 | 18,1 |
+| 8 | + | + | + | 44,4 | 47,0 | 46,0 |
 
 ### Média e desvio padrão por combinação
 
 | Comb. | A | B | C | $\bar{x}$ (%) | $s$ |
 |:-----:|:--:|:--:|:--:|:---:|:---:|
-| 1 | − | − | − | _ | _ |
-| 2 | + | − | − | _ | _ |
-| 3 | − | + | − | _ | _ |
-| 4 | + | + | − | _ | _ |
-| 5 | − | − | + | _ | _ |
-| 6 | + | − | + | _ | _ |
-| 7 | − | + | + | _ | _ |
-| 8 | + | + | + | _ | _ |
+| 1 | − | − | − | 17,90 | 0,26 |
+| 2 | + | − | − | 54,13 | 0,47 |
+| 3 | − | + | − | 18,10 | 0,00 |
+| 4 | + | + | − | 40,20 | 0,76 |
+| 5 | − | − | + | 17,70 | 0,00 |
+| 6 | + | − | + | 54,67 | 0,83 |
+| 7 | − | + | + | 18,10 | 0,00 |
+| 8 | + | + | + | 45,80 | 1,31 |
 
 ### Efeitos, soma de quadrados e variação explicada
 
 | Efeito | Coeficiente estimado ($q$) | Soma de quadrados | % da variação |
 |:------:|:---:|:---:|:---:|
-| A | _ | _ | _ |
-| B | _ | _ | _ |
-| C | _ | _ | _ |
-| AB | _ | _ | _ |
-| AC | _ | _ | _ |
-| BC | _ | _ | _ |
-| ABC | _ | _ | _ |
-| Erro experimental | — | _ | _ |
+| A | 15,375 | 5673,38 | 92,74 % |
+| B | −2,775 | 184,82 | 3,02 % |
+| C | 0,742 | 13,20 | 0,22 % |
+| AB | −2,925 | 205,34 | 3,36 % |
+| AC | 0,792 | 15,04 | 0,25 % |
+| BC | 0,658 | 10,40 | 0,17 % |
+| ABC | 0,608 | 8,88 | 0,15 % |
+| Erro experimental | — | 6,55 | 0,11 % |
 
 <br>
 
 ## 7. Discussão dos resultados
 
-> Responder após a análise.
+**1. Qual fator teve o maior impacto na métrica principal?**
+O fator **A (sistema operacional)**, responsável por **92,74 %** da variação total.
+Seu coeficiente ($q_A = 15,38$) implica uma diferença média de ~30,8 pontos
+percentuais entre Linux (~18 %) e Windows (~48 %) na mesma máquina.
 
-1. Qual fator teve o maior impacto na métrica principal?
-2. Esse impacto era esperado? Por quê?
-3. Houve alguma interação relevante entre os fatores?
-4. O resultado confirma ou contradiz a intuição inicial do grupo?
-5. Algum fator escolhido parece pouco importante?
-6. A variabilidade entre repetições foi pequena ou grande?
-7. O valor de `r` escolhido foi suficiente?
-8. Quais fatores deveriam ser investigados com mais profundidade?
-9. Algum fator deveria ser descartado nas próximas etapas?
-10. Que limitações ameaçam a validade dos resultados?
+**2. Esse impacto era esperado? Por quê?**
+Sim. O Mini Estudo 1 já indicava que o Windows consome sistematicamente mais RAM que
+distribuições Linux nas mesmas condições, por causa de serviços nativos mais pesados
+(MsMpEng, explorer.exe, dwm.exe). O projeto fatorial confirma e quantifica esse efeito.
+
+**3. Houve alguma interação relevante entre os fatores?**
+Sim, a interação **AB (SO × RAM)**, com **3,36 %** da variação — maior que o efeito
+principal de B isoladamente (3,02 %). O efeito do SO depende do tamanho da RAM: no
+Windows, a máquina de 8 GB usa ~54 % enquanto a de 16 GB usa ~40–46 %; no Linux o uso
+permanece ~18 % nos dois tamanhos. Ou seja, a pressão de memória do Windows é mais
+severa quando há menos RAM física. As demais interações (AC, BC, ABC) são desprezíveis
+(< 0,3 %).
+
+**4. O resultado confirma ou contradiz a intuição inicial do grupo?**
+Confirma. A hipótese da trilha ("o SO influencia o uso de RAM") é fortemente sustentada:
+o SO sozinho explica quase toda a variação observada.
+
+**5. Algum fator escolhido parece pouco importante?**
+Sim, o fator **C (carga de trabalho)**, com apenas **0,22 %** da variação. A diferença
+entre repouso e carga pesada foi pequena — perceptível só no Windows 16 GB (40,2 % →
+45,8 %) e quase nula no Linux. Indica que a "carga pesada" definida não pressionou a
+memória o suficiente para rivalizar com o efeito do SO.
+
+**6. A variabilidade entre repetições foi pequena ou grande?**
+Muito pequena. O erro experimental representa **0,11 %** da variação total; os desvios
+padrão por combinação ficaram entre 0,00 e 1,31 ponto percentual. Várias combinações
+tiveram $s = 0$ (leituras idênticas).
+
+**7. O valor de `r` escolhido foi suficiente?**
+Para **estimar as médias**, sim — o erro é minúsculo e os efeitos ficam muito acima
+dele. Porém os $s = 0$ revelam baixa independência entre replicações: as três leituras
+foram tomadas na mesma sessão, a 20 s de intervalo, capturando praticamente o mesmo
+estado do sistema. Para uma estimativa honesta do erro experimental, replicações
+deveriam vir de reinicializações independentes.
+
+**8. Quais fatores deveriam ser investigados com mais profundidade?**
+O fator **A (SO)** e a interação **AB (SO × RAM)**, que concentram > 96 % da variação.
+Vale aprofundar *por que* o Windows escala pior em pouca RAM (cache, compressão de
+memória, serviços de segundo plano).
+
+**9. Algum fator deveria ser descartado nas próximas etapas?**
+O fator **C (carga)** tal como foi definido, além das interações AC, BC e ABC — todos
+com contribuição desprezível. Se a carga for mantida, precisa ser redefinida para
+exercer pressão real de memória.
+
+**10. Que limitações ameaçam a validade dos resultados?**
+- **Confusão fator B × hardware:** os níveis de 8 GB e 16 GB vêm de máquinas físicas
+  diferentes (operadoras distintas), então o efeito de "tamanho de RAM" está misturado
+  com diferenças de hardware e de processos nativos.
+- **Replicações pouco independentes:** medidas na mesma sessão (20 s), subestimando o
+  erro experimental real.
+- **Carga pesada fraca:** o nível +1 de C não se diferenciou o suficiente do repouso.
+- **Fatores não controlados:** atualizações automáticas e antivírus (Windows) atuaram
+  como ruído não isolado.
 
 <br>
 
 ## 8. Conclusão
 
-> Sintetizar após a discussão:
-> - fatores que merecem maior atenção;
-> - fatores que podem ser descartados;
-> - recomendação para experimentos futuros.
+**Fatores que merecem maior atenção:** o **sistema operacional (A)** é, isoladamente, o
+fator determinante do uso de RAM (92,74 % da variação), seguido da interação **SO ×
+tamanho de RAM (AB)** (3,36 %). O Windows não só consome mais memória que o Linux como
+sofre mais quando a RAM é escassa — é onde devem se concentrar os próximos experimentos.
+
+**Fatores que podem ser descartados:** a **carga de trabalho (C)** como definida
+(0,22 %) e as interações de ordem superior **AC, BC e ABC** (< 0,3 % cada), que não
+justificam o custo de continuar sendo controladas.
+
+**Recomendação para experimentos futuros:**
+- Isolar o fator RAM usando a **mesma máquina** com quantidades de memória diferentes,
+  eliminando a confusão com hardware.
+- Coletar replicações a partir de **reinicializações independentes** para estimar o erro
+  experimental de forma realista.
+- **Redefinir a carga pesada** (ex.: abrir conjunto fixo de aplicações que realmente
+  demande memória) ou removê-la do projeto.
+- Focar o próximo estudo em **A e AB**, investigando os mecanismos internos de
+  gerenciamento de memória do Windows sob pressão.
 
 <br>
 

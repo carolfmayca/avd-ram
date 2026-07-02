@@ -1,0 +1,4 @@
+A,B,C,rep,timestamp,so,ram_total_gb,ram_disponivel_gb,ram_usada_gb,uso_percent,num_processos,top1_nome,top1_ram_mb,top2_nome,top2_ram_mb,top3_nome,top3_ram_mb
+-1,1,1,1,2026-07-01 21:13:37,Fedora Linux 44,15.13,12.47,2.66,17.6,461,gnome-shell,252.6,Docker Desktop,243.9,gnome-software,227.0
+-1,1,1,2,2026-07-01 21:13:57,Fedora Linux 44,15.13,12.47,2.66,17.6,459,gnome-shell,252.6,Docker Desktop,244.2,gnome-software,227.0
+-1,1,1,3,2026-07-01 21:14:17,Fedora Linux 44,15.13,12.47,2.66,17.6,459,gnome-shell,252.5,Docker Desktop,244.2,gnome-software,227.0

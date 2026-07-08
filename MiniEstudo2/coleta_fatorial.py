@@ -18,6 +18,10 @@ Uso típico (rodar 1x por carga, em cada máquina da matriz):
     python coleta_fatorial.py --carga repouso -n 3 -i 20
     python coleta_fatorial.py --carga pesada  -n 3 -i 20
 
+No modo pesado, o script aloca memória automaticamente para gerar pressão de RAM.
+Use --carga-mb para ajustar a intensidade ou --carga-mb 0 para apenas rotular a
+rodada como pesada, sem gerar carga.
+
 A combinação A×B é fixa por máquina, então cada operador roda o script duas vezes
 (repouso e pesada) por máquina, cobrindo as 8 combinações entre os integrantes.
 """
@@ -178,6 +182,27 @@ def coletar_metadados(a, b, c, carga, config):
     return meta
 
 
+def gerar_carga_memoria(mb):
+    """Aloca e toca memória para gerar carga real durante a coleta."""
+    if mb <= 0:
+        return []
+
+    tamanho_bloco_mb = 64
+    tamanho_bloco = tamanho_bloco_mb * 1024 * 1024
+    restante = mb * 1024 * 1024
+    blocos = []
+
+    while restante > 0:
+        tamanho = min(tamanho_bloco, restante)
+        bloco = bytearray(tamanho)
+        for i in range(0, tamanho, 4096):
+            bloco[i] = 1
+        blocos.append(bloco)
+        restante -= tamanho
+
+    return blocos
+
+
 def anexar_mestre(caminho, linhas):
     """Anexa replicações ao CSV mestre, criando cabeçalho se não existir."""
     existe = os.path.exists(caminho) and os.path.getsize(caminho) > 0
@@ -238,12 +263,23 @@ def main():
         help="Diretório base para a pasta de detalhe/metadados (default: atual).",
     )
     p.add_argument("--obs", default="", help="Observações livres.")
+    p.add_argument(
+        "--carga-mb",
+        type=int,
+        default=1024,
+        help=(
+            "Memória, em MB, alocada automaticamente quando --carga pesada "
+            "(default: 1024; use 0 para desativar)."
+        ),
+    )
     args = p.parse_args()
 
     if args.num_rep < 1:
         p.error("--num-rep deve ser >= 1.")
     if args.intervalo < 0:
         p.error("--intervalo deve ser >= 0.")
+    if args.carga_mb < 0:
+        p.error("--carga-mb deve ser >= 0.")
 
     a = args.a if args.a is not None else nivel_so()
     b = args.b if args.b is not None else nivel_ram()
@@ -259,6 +295,8 @@ def main():
     print(f"  B (RAM)   = {b:+d}  ({rotulo_b})")
     print(f"  C (carga) = {c:+d}  ({args.carga})")
     print(f"  r         = {args.num_rep}   intervalo = {args.intervalo}s")
+    if args.carga == "pesada":
+        print(f"  carga RAM = {args.carga_mb} MB")
     print(f"  CSV mestre: {args.csv}")
     print("=" * 60)
 
@@ -275,7 +313,14 @@ def main():
     config = (
         f"A={a}, B={b}, C={c} ({args.carga}); r={args.num_rep}, i={args.intervalo}s"
     )
+    carga_memoria = []
+    if args.carga == "pesada" and args.carga_mb > 0:
+        print(f"\n  Gerando carga pesada: alocando {args.carga_mb} MB de RAM...")
+        carga_memoria = gerar_carga_memoria(args.carga_mb)
+        print("  Carga alocada; iniciando medições.")
+
     meta = coletar_metadados(a, b, c, args.carga, config)
+    meta["carga_ram_mb"] = args.carga_mb if args.carga == "pesada" else 0
     meta["observacoes"] = args.obs
     with open(meta_path, "w", encoding="utf-8") as f:
         json.dump(meta, f, ensure_ascii=False, indent=2)
@@ -299,6 +344,9 @@ def main():
                 time.sleep(args.intervalo)
 
     anexar_mestre(args.csv, linhas)
+
+    # Mantem a lista viva ate este ponto; depois a memoria e liberada pelo processo.
+    del carga_memoria
 
     print("\n  " + "-" * 34)
     print(f"  {args.num_rep} replicações anexadas a {args.csv}")

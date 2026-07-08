@@ -1,0 +1,4 @@
+A,B,C,rep,timestamp,so,ram_total_gb,ram_disponivel_gb,ram_usada_gb,uso_percent,num_processos,top1_nome,top1_ram_mb,top2_nome,top2_ram_mb,top3_nome,top3_ram_mb
+1,1,-1,1,2026-07-08 23:23:24,Windows 10.0.26200,15.73,10.23,5.5,35.0,242,MsMpEng.exe,399.6,explorer.exe,381.7,MicrosoftSecurityApp.exe,212.3
+1,1,-1,2,2026-07-08 23:23:45,Windows 10.0.26200,15.73,10.31,5.42,34.5,240,MsMpEng.exe,390.5,explorer.exe,381.1,MicrosoftSecurityApp.exe,212.0
+1,1,-1,3,2026-07-08 23:24:05,Windows 10.0.26200,15.73,10.44,5.29,33.6,224,MsMpEng.exe,390.9,explorer.exe,379.9,MicrosoftSecurityApp.exe,212.1

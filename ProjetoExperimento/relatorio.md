@@ -1,4 +1,4 @@
-# Mini Estudo 2: Projeto de Experimentos 2³ — Fatores que Explicam o Uso de RAM
+# Projeto de Experimentos 2³ — Fatores que Explicam o Uso de RAM
 
 <div align="center", style="display: flex; align-items: center; justify-content: center; gap: 20px;">
     <img src="https://www.ripsa.org.br/wp-content/uploads/2025/08/32-UFAM-Logo.png" alt="UFAM" width="150"/>
@@ -20,7 +20,7 @@ Av. Rodrigo Otávio, nº 6200, Coroado I, Manaus – AM, 69080-900
 
 ## Introdução
 
-Este Mini Estudo dá continuidade ao baseline que construímos no Mini Estudo 1, no qual
+Este experimento dá continuidade ao baseline que construímos no Mini Estudo 1, no qual
 observamos que o sistema operacional influencia fortemente o percentual de uso de
 RAM em repouso. Nesta etapa, nosso objetivo deixa de ser apenas *medir* o consumo e
 passa a ser **entender quais fatores realmente explicam a variação do desempenho** e

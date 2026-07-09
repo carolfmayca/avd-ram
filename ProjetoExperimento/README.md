@@ -1,4 +1,4 @@
-# Mini Estudo 2 — Coleta e análise (uso dos scripts)
+# Projeto de Experimentos — Coleta e análise (uso dos scripts)
 
 Instruções de execução dos scripts do projeto fatorial 2³ r. O relatório está em
 [README.md](README.md).

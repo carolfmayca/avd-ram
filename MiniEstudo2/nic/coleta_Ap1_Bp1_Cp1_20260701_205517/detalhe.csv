@@ -1,4 +1,0 @@
-A,B,C,rep,timestamp,so,ram_total_gb,ram_disponivel_gb,ram_usada_gb,uso_percent,num_processos,top1_nome,top1_ram_mb,top2_nome,top2_ram_mb,top3_nome,top3_ram_mb
-1,1,1,1,2026-07-01 20:55:19,Windows 10.0.26200,15.53,9.04,6.49,41.8,224,steamwebhelper.exe,408.1,explorer.exe,343.8,MsMpEng.exe,261.5
-1,1,1,2,2026-07-01 20:55:40,Windows 10.0.26200,15.53,9.07,6.46,41.6,218,steamwebhelper.exe,408.1,explorer.exe,343.9,MsMpEng.exe,262.6
-1,1,1,3,2026-07-01 20:56:00,Windows 10.0.26200,15.53,9.08,6.45,41.5,217,steamwebhelper.exe,408.1,explorer.exe,343.8,MsMpEng.exe,262.2

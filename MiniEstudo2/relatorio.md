@@ -146,7 +146,7 @@ reconhecemos como uma restrição do desenho por máquina/integrante.
 
 Realizamos a coleta em 2026-07-08. Os cenários de 16 GB foram medidos pela Carolina
 (Ubuntu 24.04 / Windows 11) e os de 8 GB pela Luiza (Ubuntu 24.04 / Windows 11), com
-`N = 24`, `r = 3` e média geral `q0 = 36,48 %`. Os valores brutos estão em
+`N = 24`, `r = 3` e média geral `q0 = 36,00 %`. Os valores brutos estão em
 [dados_2k_r.csv](dados_2k_r.csv).
 
 ### Repetições por combinação
@@ -155,11 +155,11 @@ Realizamos a coleta em 2026-07-08. Os cenários de 16 GB foram medidos pela Caro
 |:-----:|:--:|:--:|:--:|:---:|:---:|:---:|
 | 1 | − | − | − | 16,8 | 16,6 | 16,5 |
 | 2 | + | − | − | 57,8 | 57,9 | 57,6 |
-| 3 | − | + | − | 14,9 | 14,8 | 14,8 |
+| 3 | − | + | − | 16,2 | 16,2 | 16,2 |
 | 4 | + | + | − | 35,0 | 34,5 | 33,6 |
 | 5 | − | − | + | 30,0 | 29,7 | 29,7 |
 | 6 | + | − | + | 69,8 | 69,9 | 70,4 |
-| 7 | − | + | + | 27,9 | 27,9 | 27,9 |
+| 7 | − | + | + | 22,7 | 22,6 | 22,6 |
 | 8 | + | + | + | 40,6 | 40,5 | 40,5 |
 
 ### Média e desvio padrão por combinação
@@ -168,24 +168,24 @@ Realizamos a coleta em 2026-07-08. Os cenários de 16 GB foram medidos pela Caro
 |:-----:|:--:|:--:|:--:|:---:|:---:|
 | 1 | − | − | − | 16,63 | 0,15 |
 | 2 | + | − | − | 57,77 | 0,15 |
-| 3 | − | + | − | 14,83 | 0,06 |
+| 3 | − | + | − | 16,20 | 0,00 |
 | 4 | + | + | − | 34,37 | 0,71 |
 | 5 | − | − | + | 29,80 | 0,17 |
 | 6 | + | − | + | 70,03 | 0,32 |
-| 7 | − | + | + | 27,90 | 0,00 |
+| 7 | − | + | + | 22,63 | 0,06 |
 | 8 | + | + | + | 40,53 | 0,06 |
 
 ### Efeitos, soma de quadrados e variação explicada
 
 | Efeito | Coeficiente estimado ($q$) | Soma de quadrados | % da variação |
 |:------:|:---:|:---:|:---:|
-| A | 14,192 | 4833,68 | 62,43 % |
-| B | −7,075 | 1201,34 | 15,52 % |
-| C | 5,583 | 748,17 | 9,66 % |
-| AB | −6,150 | 907,74 | 11,72 % |
-| AC | −0,975 | 22,82 | 0,29 % |
-| BC | −0,775 | 14,42 | 0,19 % |
-| ABC | −0,750 | 13,50 | 0,17 % |
+| A | 14,679 | 5171,47 | 65,30 % |
+| B | −7,563 | 1372,59 | 17,33 % |
+| C | 4,754 | 542,45 | 6,85 % |
+| AB | −5,663 | 769,53 | 9,72 % |
+| AC | −0,146 | 0,51 | 0,01 % |
+| BC | −1,604 | 61,76 | 0,78 % |
+| ABC | 0,079 | 0,15 | 0,00 % |
 | Erro experimental | — | 1,38 | 0,02 % |
 
 ### Modelo fatorial ajustado
@@ -193,7 +193,7 @@ Realizamos a coleta em 2026-07-08. Os cenários de 16 GB foram medidos pela Caro
 Substituindo os coeficientes estimados na forma do modelo 2³ (com $x_A, x_B, x_C \in \{-1, +1\}$):
 
 $$
-y = 36,48 + 14,19\,x_A - 7,08\,x_B + 5,58\,x_C - 6,15\,x_A x_B - 0,98\,x_A x_C - 0,78\,x_B x_C - 0,75\,x_A x_B x_C
+y = 36,00 + 14,68\,x_A - 7,56\,x_B + 4,75\,x_C - 5,66\,x_A x_B - 0,15\,x_A x_C - 1,60\,x_B x_C + 0,08\,x_A x_B x_C
 $$
 
 <br>
@@ -201,9 +201,9 @@ $$
 ## 7. Discussão dos resultados e conclusão
 
 **1. Qual fator teve o maior impacto na métrica principal?**
-O fator **A (sistema operacional)**, responsável por **62,43 %** da variação total.
-Seu coeficiente ($q_A = 14,19$) implica uma diferença média de aproximadamente
-28,4 pontos percentuais entre Linux e Windows, considerando a média sobre os níveis de
+O fator **A (sistema operacional)**, responsável por **65,30 %** da variação total.
+Seu coeficiente ($q_A = 14,68$) implica uma diferença média de aproximadamente
+29,4 pontos percentuais entre Linux e Windows, considerando a média sobre os níveis de
 RAM e carga.
 
 **2. Esse impacto era esperado? Por quê?**
@@ -214,12 +214,12 @@ O projeto fatorial confirmou esse efeito e mostrou que RAM, carga e a interaçã
 SO × RAM também explicam parcelas relevantes da variação.
 
 **3. Houve alguma interação relevante entre os fatores?**
-Sim, observamos a interação **AB (SO × RAM)**, com **11,72 %** da variação. O efeito
+Sim, observamos a interação **AB (SO × RAM)**, com **9,72 %** da variação. O efeito
 do sistema operacional depende do tamanho da RAM: em 8 GB, o Windows ficou muito acima
 do Linux (aprox. 58–70 % contra 17–30 %); em 16 GB, a diferença ainda existe, mas é
-menor (aprox. 34–41 % contra 15–28 %). Ou seja, a pressão de memória do Windows é
+menor (aprox. 34–41 % contra 16–23 %). Ou seja, a pressão de memória do Windows é
 mais severa quando há menos RAM física. As demais interações (AC, BC, ABC)
-mostraram-se pequenas (< 0,3 % cada).
+mostraram-se pequenas.
 
 **4. O resultado confirma ou contradiz a intuição inicial do grupo?**
 Confirma nossa intuição principal. A hipótese da trilha ("o SO influencia o uso de
@@ -227,8 +227,10 @@ RAM") foi sustentada, com um quadro mais rico: o SO é o maior fator, porém o t
 da RAM, a carga e a interação SO × RAM também importam.
 
 **5. Algum fator escolhido parece pouco importante?**
-Sim, as interações **AC**, **BC** e **ABC** parecem pouco importantes, todas abaixo de
-0,3 % da variação. 
+Sim, as interações **AC** e **ABC** parecem desprezíveis, ambas próximas de 0 % da
+variação. A interação **BC** também foi pequena, com **0,78 %**. Entre os efeitos
+principais, a carga de trabalho (**C**) teve menor impacto que SO e RAM, mas ainda
+explicou **6,85 %** da variação.
 
 **6. A variabilidade entre repetições foi pequena ou grande?**
 Muito pequena. O erro experimental representa **0,02 %** da variação total; os desvios
@@ -246,12 +248,14 @@ experimental, as replicações deveriam vir de reinicializações independentes.
 Os fatores **A (SO)**, **B (RAM)**, **C (carga)** e a interação **AB (SO × RAM)**, que
 juntos concentram quase toda a variação explicada. Consideramos que vale aprofundar
 por que o Windows escala pior em pouca RAM (cache, compressão de memória, serviços de
-segundo plano) e padronizar melhor a carga pesada para avaliar seu efeito isolado.
+segundo plano) e comparar a carga artificial de 1 GB com cargas reais de uso.
 
 **9. Algum fator deveria ser descartado nas próximas etapas?**
-As interações **AC**, **BC** e **ABC** poderiam ser descartadas ou tratadas como termos
-secundários em uma próxima análise, pois tiveram contribuição muito pequena. O fator
-**C (carga)** deve ser mantido, mas com procedimento mais padronizado.
+As interações **AC** e **ABC** poderiam ser descartadas ou tratadas como termos
+secundários em uma próxima análise, pois tiveram contribuição praticamente nula. A
+interação **BC** foi pequena e pode ser monitorada, mas não apareceu como efeito
+central. O fator **C (carga)** deve ser mantido, especialmente por representar a
+alocação adicional de 1 GB.
 
 **10. Que limitações ameaçam a validade dos resultados?**
 - **Confusão fator B × hardware:** os níveis de 8 GB e 16 GB vêm de máquinas físicas
@@ -259,6 +263,9 @@ secundários em uma próxima análise, pois tiveram contribuição muito pequena
   com diferenças de hardware e de processos nativos.
 - **Replicações pouco independentes:** medimos na mesma sessão (20 s), o que subestima
   o erro experimental real.
+- **Carga artificial:** o nível +1 de C representa principalmente a alocação adicional
+  de 1 GB feita pelo script, não necessariamente uma carga real de aplicações do dia a
+  dia.
 - **Fatores não controlados:** atualizações automáticas e serviços de segundo plano
   do Windows atuaram como ruído que não conseguimos isolar.
 
